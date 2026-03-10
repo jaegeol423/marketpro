@@ -10,7 +10,7 @@ renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 canvasContainer.appendChild(renderer.domElement);
 
-camera.position.set(0, 0, 25); // 그림이 2배 커짐에 따라 카메라 거리를 15에서 25로 대폭 조정
+camera.position.set(0, 0, 25); 
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableRotate = false;
@@ -53,7 +53,7 @@ textureLoader.load(
     (texture) => {
         console.log('Texture loaded successfully');
         const aspect = texture.image.width / texture.image.height;
-        const height = 35; // 17.5 * 2.0 = 35 (2x enlargement)
+        const height = 35; 
         const width = height * aspect;
         
         const geometry = new THREE.PlaneGeometry(width, height);
@@ -94,20 +94,23 @@ function createClickTargets() {
         visible: true 
     });
 
-    // 2배 확대된 크기에 맞춘 모든 좌표값 2배 보정
+    // 모든 히트박스 크기를 작게 통일 (기존 대비 축소)
+    const unifiedSize = 0.8;
+
+    // 요청하신 대로 정밀 좌표 재조정
     const targets = {
-        'head': { pos: [0, 13.6, 0.2], size: 2.4, part: '목' },
-        'shoulder_l': { pos: [4.2, 9.0, 0.2], size: 1.8, part: '어깨' },
-        'shoulder_r': { pos: [-4.2, 9.0, 0.2], size: 1.8, part: '어깨' },
-        'chest': { pos: [0, 6.0, 0.2], size: 4.0, part: '등' },
-        'arm_l': { pos: [7.8, 3.0, 0.2], size: 1.8, part: '팔/손목' },
-        'arm_r': { pos: [-7.8, 3.0, 0.2], size: 1.8, part: '팔/손목' },
-        'leg_l': { pos: [3.0, -7.0, 0.2], size: 2.8, part: '다리' },
-        'leg_r': { pos: [-3.0, -7.0, 0.2], size: 2.8, part: '다리' },
+        'neck': { pos: [0, 12.0, 0.2], part: '목' },           // 아래로 이동
+        'shoulder_l': { pos: [4.2, 9.0, 0.2], part: '어깨' },
+        'shoulder_r': { pos: [-4.2, 9.0, 0.2], part: '어깨' },
+        'waist': { pos: [0, 4.0, 0.2], part: '등' },           // 가슴(6.0)에서 허리(4.0)로 아래 이동
+        'wrist_l': { pos: [6.5, 3.0, 0.2], part: '팔/손목' },   // 중앙 쪽으로 이동 (7.8 -> 6.5)
+        'wrist_r': { pos: [-6.5, 3.0, 0.2], part: '팔/손목' }, // 중앙 쪽으로 이동 (-7.8 -> -6.5)
+        'knee_l': { pos: [3.0, -3.0, 0.2], part: '다리' },     // 발목(-7.0)에서 무릎(-3.0)으로 위 이동
+        'knee_r': { pos: [-3.0, -3.0, 0.2], part: '다리' },    // 발목(-7.0)에서 무릎(-3.0)으로 위 이동
     };
 
     for (const [name, data] of Object.entries(targets)) {
-        const geo = new THREE.SphereGeometry(data.size, 16, 16);
+        const geo = new THREE.SphereGeometry(unifiedSize, 16, 16);
         const mesh = new THREE.Mesh(geo, targetMaterial.clone());
         mesh.position.set(...data.pos);
         mesh.name = name;
@@ -182,7 +185,7 @@ canvasContainer.addEventListener('click', onClick);
 function animate(time) {
     requestAnimationFrame(animate);
     if (bodyGroup.children.length > 0) {
-        bodyGroup.position.y = Math.sin(time * 0.002) * 0.2; // 부드러운 움직임도 비례해서 조금 키움
+        bodyGroup.position.y = Math.sin(time * 0.002) * 0.15;
         clickTargets.position.y = bodyGroup.position.y;
     }
     controls.update();
