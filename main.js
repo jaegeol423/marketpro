@@ -119,40 +119,44 @@ function createClickTargets() {
     }
 }
 
-// --- 스트레칭 전문 데이터 (해부학적 근거 보강) --------------------------------------
+// --- 스트레칭 전문 데이터 (해부학적 근거 보강 및 애니메이션 추가) --------------------------------------
 const stretches = [
     { 
         bodyPart: '목', 
         title: '경추 심부 굴곡근 강화 및 이완', 
+        animClass: 'anim-neck',
         description: '장시간 모니터 사용으로 인해 단축된 사각근과 흉쇄유돌근을 이완하고, 경추 정렬을 바로잡아 거북목 증후군을 완화합니다.',
-        steps: '1. 정면을 응시한 상태에서 턱을 몸쪽으로 수평하게 당깁니다(Chin-tuck). 2. 정수리가 천장 쪽으로 길어지는 느낌을 유지하며 10초간 머뭅니다. 3. 어깨가 따라 올라가지 않도록 주의하며 서서히 머리를 한쪽으로 기울여 측면 근육을 신장시킵니다.'
+        steps: '정면 응시 후 턱을 수평하게 당기기(Chin-tuck) -> 10초 유지 -> 머리 옆으로 기울이기'
     },
     { 
         bodyPart: '어깨', 
         title: '회전근개 가동성 확보 및 대흉근 신전', 
-        description: '말린 어깨(라운드 숄더)를 교정하기 위해 가슴 앞쪽 대흉근을 열어주고, 견갑골 주변 근육의 안정성을 높여 어깨 충돌 증후군을 예방합니다.',
-        steps: '1. 벽 모서리에 양팔을 ㄴ자로 대고 섭니다. 2. 가슴을 전방으로 서서히 밀어내며 어깨 앞쪽이 시원하게 늘어나는 것을 느낍니다. 3. 양쪽 견갑골이 서로 만난다는 느낌으로 등 뒤 근육을 수축하며 20초간 유지합니다.'
+        animClass: 'anim-shoulder',
+        description: '말린 어깨(라운드 숄더)를 교정하기 위해 가슴 앞쪽 대흉근을 열어주고, 견갑골 주변 근육의 안정성을 높입니다.',
+        steps: '벽 모서리에 양팔 ㄴ자로 대기 -> 가슴 전방으로 밀기 -> 견갑골 모으며 20초 유지'
     },
     { 
         bodyPart: '등', 
         title: '척추 기립근 및 요방형근 릴리즈', 
-        description: '척추 마디마디의 공간을 확보하여 요추의 압박을 줄이고, 허리 통증의 주원인인 요방형근과 광배근을 이완하여 유연한 상체를 만듭니다.',
-        steps: '1. 네발 기기 자세에서 숨을 내쉬며 꼬리뼈부터 등까지 둥글게 말아 천장으로 올립니다(고양이 자세). 2. 반대로 숨을 들이마시며 배꼽을 바닥 쪽으로 낮추고 시선은 먼 정면을 봅니다(소 자세). 3. 척추의 움직임을 세밀하게 느끼며 10회 반복합니다.'
+        animClass: 'anim-back',
+        description: '척추 마디마디 공간을 확보하여 요추 압박을 줄이고, 허리 통증 원인인 요방형근과 광배근을 이완합니다.',
+        steps: '네발 기기 자세 -> 등 둥글게 말기(고양이) -> 배꼽 낮추고 시선 정면(소) -> 10회 반복'
     },
     { 
         bodyPart: '팔/손목', 
         title: '수근관 증후군 예방 및 전완근 이완', 
-        description: '손목 터널 내 정중신경의 압박을 완화하고, 키보드와 마우스 사용으로 긴장된 전완 굴곡근을 스트레칭하여 통증을 케어합니다.',
-        steps: '1. 한쪽 팔을 앞으로 쭉 뻗고 손바닥이 앞을 향하게 세웁니다. 2. 반대 손으로 손가락 끝을 몸쪽으로 지긋이 당깁니다. 3. 팔꿈치가 굽혀지지 않도록 주의하며 전완 안쪽이 늘어나는 것을 15초간 느낍니다.'
+        animClass: 'anim-wrist',
+        description: '손목 터널 내 정중신경 압박을 완화하고, 키보드/마우스 사용으로 긴장된 전완 굴곡근을 스트레칭합니다.',
+        steps: '팔 앞으로 뻗고 손바닥 세우기 -> 반대 손으로 손가락 당기기 -> 15초간 유지'
     },
     { 
         bodyPart: '다리', 
         title: '좌골신경통 완화 및 이상근/햄스트링 이완', 
-        description: '골반 깊숙한 곳의 이상근을 이완하여 신경 압박을 해소하고, 짧아진 햄스트링을 늘려 하체 부종 예방 및 골반 불균형을 교정합니다.',
-        steps: '1. 바닥에 누워 한쪽 다리를 반대편 무릎 위에 숫자 4 모양으로 올립니다. 2. 아래쪽 허벅지를 양손으로 감싸 가슴 쪽으로 천천히 당깁니다. 3. 엉덩이 깊은 곳의 자극을 느끼며 호흡과 함께 20초간 유지합니다.'
+        animClass: 'anim-leg',
+        description: '골반 깊숙한 곳의 이상근을 이완하여 신경 압박을 해소하고, 골반 불균형을 교정합니다.',
+        steps: '누워서 한쪽 다리 숫자 4 모양으로 올리기 -> 아래쪽 허벅지 가슴쪽으로 당기기 -> 20초 유지'
     },
 ];
-
 
 const cardContainer = document.querySelector('.card-container');
 
@@ -162,8 +166,25 @@ function displayStretches(filter = 'all') {
 
     filteredStretches.forEach(stretch => {
         const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<h3>${stretch.title}</h3><p>${stretch.description}</p>`;
+        card.className = `card ${stretch.animClass}`;
+        
+        // 동작 가이드 시각화 요소 생성
+        const actionHtml = `
+            <div class="action-container">
+                <div class="action-body">
+                    <div class="action-head"></div>
+                    ${stretch.bodyPart === '팔/손목' ? '<div class="action-hand"></div>' : ''}
+                </div>
+                <div style="position:absolute; bottom:5px; font-size:0.7rem; color:var(--primary-color); opacity:0.5;">HOLOGRAPHIC GUIDE v1.0</div>
+            </div>
+        `;
+
+        card.innerHTML = `
+            ${actionHtml}
+            <h3>${stretch.title}</h3>
+            <p>${stretch.description}</p>
+            <div class="steps-text"><strong>Action:</strong> ${stretch.steps}</div>
+        `;
         cardContainer.appendChild(card);
     });
 }
