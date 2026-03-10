@@ -1,14 +1,33 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modern Theme Toggle</title>
+  <title>바디 스트레칭 가이드</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <link href='/style.css' rel='stylesheet'>
 </head>
 <body data-theme="light">
-  <button id="theme-toggle" class="theme-toggle">🌙 Dark Mode</button>
-  <simple-greeting name="User"></simple-greeting>
-  <script defer type="text/javascript" src="/main.js"></script>
+  <header>
+    <h1>바디 스트레칭 가이드</h1>
+    <p class="subtitle">일상의 활력을 되찾아주는 부위별 스트레칭 방법</p>
+  </header>
+
+  <nav class="controls">
+    <button class="filter-btn active" data-category="all">전체</button>
+    <button class="filter-btn" data-category="neck">목</button>
+    <button class="filter-btn" data-category="shoulder">어깨</button>
+    <button class="filter-btn" data-category="back">등/허리</button>
+    <button class="filter-btn" data-category="wrist">손목</button>
+    <button class="filter-btn" data-category="leg">다리</button>
+  </nav>
+
+  <main class="grid" id="stretch-grid">
+    <!-- 스트레칭 카드가 자바스크립트에 의해 여기에 삽입됩니다 -->
+  </main>
+
+  <button id="theme-toggle" class="theme-toggle" aria-label="테마 변경">🌙</button>
+
+  <script defer src="/main.js"></script>
 </body>
 </html>

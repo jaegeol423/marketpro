@@ -1,20 +1,22 @@
-# Project Blueprint
+# Project Blueprint: Body Stretching Guide
 
 ## Overview
-A modern web application featuring Web Components and a persistent theme system (Dark/Light mode).
+A comprehensive web guide for body stretching exercises, categorized by body parts. Features a modern, responsive UI with theme support.
 
 ## Features
-- **Web Components:** Reusable `simple-greeting` component.
-- **Theme System:** Supports Dark and Light modes using CSS Variables.
-- **Persistence:** Remembers the user's theme choice using `localStorage`.
-- **Modern UI:** Smooth transitions, responsive layout, and polished styling.
+- **Categorized Stretches:** Organized by Neck, Shoulders, Back, Wrists, and Legs.
+- **Interactive UI:** Users can filter stretches by body part.
+- **Web Components:** Custom `<stretch-card>` component for reusable exercise displays.
+- **Theme System:** Dark/Light mode toggle (persistent).
+- **Responsive Design:** Works seamlessly on mobile and desktop.
 
 ## File Structure
-- `index.html`: Main entry point with theme toggle button.
-- `main.js`: Contains `SimpleGreeting` component logic and theme switching script.
-- `style.css`: Defines the design system with theme-aware CSS variables.
+- `index.html`: Main layout with category filters and container for stretches.
+- `main.js`: Contains `StretchCard` component, exercise data, filtering logic, and theme toggle.
+- `style.css`: Design system, layout grid, and theme-aware styling.
 
-## Implementation Details
-1. **CSS Variables:** Used for background, text, card background, and shadows.
-2. **Local Storage:** Used to store and retrieve the user's preferred theme.
-3. **Shadow DOM:** Encapsulates the component styling while still utilizing global CSS variables.
+## Implementation Plan
+1. **Content Strategy:** Define a set of effective stretches for each body part.
+2. **Component Design:** Create a visually appealing card component with title, description, and instructions.
+3. **Filtering Logic:** Implement a simple JS filter to show/hide stretches based on selected category.
+4. **Visual Polish:** Add smooth transitions and hover effects for a premium feel.
