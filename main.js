@@ -19,98 +19,127 @@ const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerH
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setClearColor(0x000000, 0);
 container.appendChild(renderer.domElement);
 
 // Controls
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.dampingFactor = 0.05;
 controls.autoRotate = true;
-controls.autoRotateSpeed = 0.5;
+controls.autoRotateSpeed = 1.0;
+controls.minDistance = 5;
+controls.maxDistance = 15;
 
-// Lights
-const ambientLight = new THREE.AmbientLight(0x404040, 2);
-scene.add(ambientLight);
-const mainLight = new THREE.PointLight(0x00f2ff, 10);
-mainLight.position.set(10, 10, 10);
-scene.add(mainLight);
+// Fresnel Shader Material (High-End Hologram Look)
+const hologramShader = {
+  uniforms: {
+    "c": { type: "f", value: 1.0 },
+    "p": { type: "f", value: 3.0 },
+    glowColor: { type: "c", value: new THREE.Color(0x00f2ff) },
+    viewVector: { type: "v3", value: camera.position }
+  },
+  vertexShader: `
+    uniform vec3 viewVector;
+    uniform float c;
+    uniform float p;
+    varying float intensity;
+    void main() {
+      vec3 vNormal = normalize( normalMatrix * normal );
+      vec3 vNormel = normalize( normalMatrix * viewVector );
+      intensity = pow( c - dot(vNormal, vNormel), p );
+      gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    }
+  `,
+  fragmentShader: `
+    uniform vec3 glowColor;
+    varying float intensity;
+    void main() {
+      vec3 glow = glowColor * intensity;
+      gl_FragColor = vec4( glow, intensity );
+    }
+  `
+};
 
-// Hologram Material
-const hologramMaterial = new THREE.MeshPhongMaterial({
-  color: 0x00f2ff,
-  wireframe: true,
+const holoMaterial = new THREE.ShaderMaterial({
+  uniforms: THREE.UniformsUtils.clone(hologramShader.uniforms),
+  vertexShader: hologramShader.vertexShader,
+  fragmentShader: hologramShader.fragmentShader,
+  side: THREE.FrontSide,
+  blending: THREE.AdditiveBlending,
   transparent: true,
-  opacity: 0.2,
-  emissive: 0x00f2ff,
-  emissiveIntensity: 0.8,
-  side: THREE.DoubleSide
+  depthWrite: false
 });
 
 const bodyGroup = new THREE.Group();
 
-function createBodyPart(geometry, name, pos, rot = [0, 0, 0]) {
-  const mesh = new THREE.Mesh(geometry, hologramMaterial.clone());
+function createPart(geo, name, pos, rot = [0, 0, 0], scale = [1, 1, 1]) {
+  const mesh = new THREE.Mesh(geo, holoMaterial.clone());
   mesh.position.set(...pos);
   mesh.rotation.set(...rot);
+  mesh.scale.set(...scale);
   mesh.name = name;
   bodyGroup.add(mesh);
   return mesh;
 }
 
-// Anatomical Modeling
+// Muscular Humanoid Proportions
 // Head & Neck
-createBodyPart(new THREE.SphereGeometry(0.35, 32, 32), 'neck', [0, 3.8, 0]);
-createBodyPart(new THREE.CylinderGeometry(0.12, 0.15, 0.3), 'neck', [0, 3.4, 0]);
+createPart(new THREE.SphereGeometry(0.35, 32, 32), 'neck', [0, 3.8, 0]);
+createPart(new THREE.CylinderGeometry(0.12, 0.15, 0.4), 'neck', [0, 3.4, 0]);
 
-// Torso (V-shape)
-createBodyPart(new THREE.CapsuleGeometry(0.5, 0.8, 4, 16), 'back', [0, 2.7, 0]); // Upper torso
-createBodyPart(new THREE.CapsuleGeometry(0.35, 0.4, 4, 16), 'back', [0, 2.1, 0]); // Waist
-createBodyPart(new THREE.CapsuleGeometry(0.45, 0.3, 4, 16), 'leg', [0, 1.6, 0]); // Hips
+// Upper Body (Muscular Chest & Back)
+createPart(new THREE.BoxGeometry(1.0, 1.0, 0.6), 'back', [0, 2.8, 0]); // Chest block
+createPart(new THREE.CapsuleGeometry(0.48, 0.7, 4, 16), 'back', [0, 2.7, 0]); // Thorax
+createPart(new THREE.CapsuleGeometry(0.35, 0.5, 4, 16), 'back', [0, 2.1, 0]); // Abs/Waist
+createPart(new THREE.CapsuleGeometry(0.45, 0.3, 4, 16), 'leg', [0, 1.6, 0]); // Hips
 
 // Arms
-const armY = 3.0;
-const armDist = 0.7;
-// Shoulders
-createBodyPart(new THREE.SphereGeometry(0.18, 16, 16), 'shoulder', [-armDist, armY, 0]);
-createBodyPart(new THREE.SphereGeometry(0.18, 16, 16), 'shoulder', [armDist, armY, 0]);
+const armY = 3.1;
+const armX = 0.75;
+createPart(new THREE.SphereGeometry(0.2, 16, 16), 'shoulder', [-armX, armY, 0]); // Left Shoulder
+createPart(new THREE.SphereGeometry(0.2, 16, 16), 'shoulder', [armX, armY, 0]); // Right Shoulder
 
-// Upper Arms
-createBodyPart(new THREE.CapsuleGeometry(0.12, 0.6, 4, 12), 'shoulder', [-0.9, armY-0.4, 0], [0, 0, 0.2]);
-createBodyPart(new THREE.CapsuleGeometry(0.12, 0.6, 4, 12), 'shoulder', [0.9, armY-0.4, 0], [0, 0, -0.2]);
+createPart(new THREE.CapsuleGeometry(0.15, 0.7, 4, 12), 'shoulder', [-1.0, armY-0.4, 0], [0, 0, 0.1]); // L-Bicep
+createPart(new THREE.CapsuleGeometry(0.15, 0.7, 4, 12), 'shoulder', [1.0, armY-0.4, 0], [0, 0, -0.1]); // R-Bicep
 
-// Lower Arms & Hands
-createBodyPart(new THREE.CapsuleGeometry(0.1, 0.5, 4, 12), 'wrist', [-1.05, armY-1.0, 0], [0, 0, 0.1]);
-createBodyPart(new THREE.CapsuleGeometry(0.1, 0.5, 4, 12), 'wrist', [1.05, armY-1.0, 0], [0, 0, -0.1]);
-createBodyPart(new THREE.SphereGeometry(0.08, 8, 8), 'wrist', [-1.1, armY-1.4, 0]);
-createBodyPart(new THREE.SphereGeometry(0.08, 8, 8), 'wrist', [1.1, armY-1.4, 0]);
+createPart(new THREE.CapsuleGeometry(0.12, 0.6, 4, 12), 'wrist', [-1.15, armY-1.2, 0]); // L-Forearm
+createPart(new THREE.CapsuleGeometry(0.12, 0.6, 4, 12), 'wrist', [1.15, armY-1.2, 0]); // R-Forearm
 
-// Legs
-const legX = 0.25;
-const legY = 1.0;
-// Thighs
-createBodyPart(new THREE.CapsuleGeometry(0.22, 0.8, 4, 12), 'leg', [-legX, legY+0.2, 0]);
-createBodyPart(new THREE.CapsuleGeometry(0.22, 0.8, 4, 12), 'leg', [legX, legY+0.2, 0]);
-// Calves
-createBodyPart(new THREE.CapsuleGeometry(0.18, 0.9, 4, 12), 'leg', [-legX, legY-0.7, 0]);
-createBodyPart(new THREE.CapsuleGeometry(0.18, 0.9, 4, 12), 'leg', [legX, legY-0.7, 0]);
-// Feet
-createBodyPart(new THREE.BoxGeometry(0.2, 0.1, 0.4), 'leg', [-legX, 0, 0.1]);
-createBodyPart(new THREE.BoxGeometry(0.2, 0.1, 0.4), 'leg', [legX, 0, 0.1]);
+// Legs (Detailed quads)
+const legX = 0.3;
+createPart(new THREE.CapsuleGeometry(0.25, 1.0, 4, 12), 'leg', [-legX, 1.1, 0], [0.1, 0, 0]); // L-Thigh
+createPart(new THREE.CapsuleGeometry(0.25, 1.0, 4, 12), 'leg', [legX, 1.1, 0], [0.1, 0, 0]); // R-Thigh
+createPart(new THREE.CapsuleGeometry(0.2, 0.9, 4, 12), 'leg', [-legX, -0.1, 0]); // L-Calf
+createPart(new THREE.CapsuleGeometry(0.2, 0.9, 4, 12), 'leg', [legX, -0.1, 0]); // R-Calf
 
 scene.add(bodyGroup);
 
-// Points Overlay for "HD Scanner" effect
-const pointsMaterial = new THREE.PointsMaterial({ size: 0.015, color: 0x00f2ff });
-bodyGroup.children.forEach(mesh => {
-  const points = new THREE.Points(mesh.geometry, pointsMaterial);
-  points.position.copy(mesh.position);
-  points.rotation.copy(mesh.rotation);
-  scene.add(points);
-});
+// Environment: Glowing Grid Floor
+const gridHelper = new THREE.GridHelper(10, 20, 0x00f2ff, 0x003333);
+gridHelper.position.y = -0.8;
+scene.add(gridHelper);
+
+// Environment: Ground Ring
+const ringGeo = new THREE.RingGeometry(0.8, 1.0, 32);
+const ringMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
+const ring = new THREE.Mesh(ringGeo, ringMat);
+ring.rotation.x = Math.PI / 2;
+ring.position.y = -0.79;
+scene.add(ring);
+
+// Rays / Light Beams
+const beamCount = 5;
+for(let i=0; i<beamCount; i++) {
+  const beamGeo = new THREE.CylinderGeometry(0.01, 0.01, 10, 8);
+  const beamMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff, transparent: true, opacity: 0.1 });
+  const beam = new THREE.Mesh(beamGeo, beamMat);
+  beam.position.set((Math.random()-0.5)*4, 4, (Math.random()-0.5)*4);
+  scene.add(beam);
+}
 
 camera.position.set(0, 2, 8);
 
-// Raycaster Setup
+// Interaction
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
@@ -125,10 +154,10 @@ container.addEventListener('click', (event) => {
     const partName = intersects[0].object.name;
     showStretches(partName);
     
-    // Highlight effect
-    const originalOpacity = hologramMaterial.opacity;
-    intersects[0].object.material.opacity = 0.8;
-    setTimeout(() => intersects[0].object.material.opacity = originalOpacity, 300);
+    // Pulse effect
+    const obj = intersects[0].object;
+    obj.material.uniforms.c.value = 2.0;
+    setTimeout(() => obj.material.uniforms.c.value = 1.0, 300);
   }
 });
 
@@ -138,7 +167,12 @@ const closeBtn = document.getElementById('close-panel');
 
 function showStretches(category) {
   const filtered = stretches.filter(s => s.category === category);
-  stretchContent.innerHTML = `<h1 style="color:#00f2ff; border-bottom: 2px solid #00f2ff; padding-bottom:10px">${category.toUpperCase()}</h1>`;
+  stretchContent.innerHTML = `
+    <div style="border-left: 5px solid #00f2ff; padding-left: 20px; margin-bottom: 30px;">
+      <h1 style="color:#00f2ff; margin:0; font-size:2.5rem;">${category.toUpperCase()}</h1>
+      <p style="opacity:0.6;">부위별 스캔 완료. 스트레칭 가이드를 확인하세요.</p>
+    </div>
+  `;
   
   filtered.forEach(s => {
     const item = document.createElement('div');
@@ -152,7 +186,7 @@ function showStretches(category) {
   });
 
   infoPanel.classList.remove('hidden');
-  controls.autoRotate = false; // Stop rotating when panel is open
+  controls.autoRotate = false;
 }
 
 closeBtn.addEventListener('click', () => {
@@ -160,16 +194,24 @@ closeBtn.addEventListener('click', () => {
   controls.autoRotate = true;
 });
 
-// Animation
+// Animation Loop
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
+  
+  // Update shader uniforms for view vector
+  bodyGroup.children.forEach(mesh => {
+    if (mesh.material.uniforms) {
+      mesh.material.uniforms.viewVector.value = new THREE.Vector3().subVectors(camera.position, mesh.position);
+    }
+  });
+
   renderer.render(scene, camera);
 }
 
 animate();
 
-// Resize handling
+// Resize
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -184,8 +226,8 @@ themeToggle.addEventListener('click', () => {
   document.body.setAttribute('data-theme', next);
   themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
   
-  // Dynamic material color update
-  const newColor = next === 'dark' ? 0x00f2ff : 0x007bff;
-  hologramMaterial.color.set(newColor);
-  hologramMaterial.emissive.set(newColor);
+  const color = next === 'dark' ? 0x00f2ff : 0x007bff;
+  bodyGroup.children.forEach(mesh => {
+    if(mesh.material.uniforms) mesh.material.uniforms.glowColor.value.set(color);
+  });
 });
