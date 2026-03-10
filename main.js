@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const stretches = [
   { id: 1, category: 'neck', title: '넥 사이드 스트레칭', desc: '목 옆쪽 근육을 이완시켜 긴장을 풀어줍니다.', steps: '1. 정면을 보고 서거나 앉습니다. 2. 한 손으로 머리 반대편을 잡고 어깨 방향으로 지긋이 당깁니다. 3. 15초간 유지 후 반대쪽도 실시합니다.' },
@@ -14,97 +15,120 @@ const stretches = [
 // Scene Setup
 const container = document.getElementById('three-canvas-container');
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 container.appendChild(renderer.domElement);
 
+// Controls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.5;
+
 // Lights
 const ambientLight = new THREE.AmbientLight(0x404040, 2);
 scene.add(ambientLight);
-const pointLight = new THREE.PointLight(0x00f2ff, 3);
-pointLight.position.set(5, 5, 5);
-scene.add(pointLight);
+const mainLight = new THREE.PointLight(0x00f2ff, 10);
+mainLight.position.set(10, 10, 10);
+scene.add(mainLight);
 
-// Hologram Human Group
-const human = new THREE.Group();
-const material = new THREE.MeshPhongMaterial({
+// Hologram Material
+const hologramMaterial = new THREE.MeshPhongMaterial({
   color: 0x00f2ff,
   wireframe: true,
   transparent: true,
-  opacity: 0.3,
+  opacity: 0.2,
   emissive: 0x00f2ff,
-  emissiveIntensity: 0.5
+  emissiveIntensity: 0.8,
+  side: THREE.DoubleSide
 });
 
-function createPart(geometry, name, y, scale = [1, 1, 1]) {
-  const mesh = new THREE.Mesh(geometry, material.clone());
-  mesh.position.y = y;
-  mesh.scale.set(...scale);
+const bodyGroup = new THREE.Group();
+
+function createBodyPart(geometry, name, pos, rot = [0, 0, 0]) {
+  const mesh = new THREE.Mesh(geometry, hologramMaterial.clone());
+  mesh.position.set(...pos);
+  mesh.rotation.set(...rot);
   mesh.name = name;
-  human.add(mesh);
+  bodyGroup.add(mesh);
   return mesh;
 }
 
-// Construct Human Shape
-const head = createPart(new THREE.SphereGeometry(0.4, 16, 16), 'neck', 3.5);
-const torso = createPart(new THREE.CylinderGeometry(0.6, 0.4, 1.5, 16), 'back', 2.2);
-const leftShoulder = createPart(new THREE.SphereGeometry(0.2, 8, 8), 'shoulder', 2.8);
-leftShoulder.position.x = -0.8;
-const rightShoulder = createPart(new THREE.SphereGeometry(0.2, 8, 8), 'shoulder', 2.8);
-rightShoulder.position.x = 0.8;
+// Anatomical Modeling
+// Head & Neck
+createBodyPart(new THREE.SphereGeometry(0.35, 32, 32), 'neck', [0, 3.8, 0]);
+createBodyPart(new THREE.CylinderGeometry(0.12, 0.15, 0.3), 'neck', [0, 3.4, 0]);
 
-const leftArm = createPart(new THREE.CylinderGeometry(0.15, 0.1, 1.2, 8), 'wrist', 2.1, [1, 1, 1]);
-leftArm.position.x = -1;
-leftArm.rotation.z = Math.PI / 8;
+// Torso (V-shape)
+createBodyPart(new THREE.CapsuleGeometry(0.5, 0.8, 4, 16), 'back', [0, 2.7, 0]); // Upper torso
+createBodyPart(new THREE.CapsuleGeometry(0.35, 0.4, 4, 16), 'back', [0, 2.1, 0]); // Waist
+createBodyPart(new THREE.CapsuleGeometry(0.45, 0.3, 4, 16), 'leg', [0, 1.6, 0]); // Hips
 
-const rightArm = createPart(new THREE.CylinderGeometry(0.15, 0.1, 1.2, 8), 'wrist', 2.1, [1, 1, 1]);
-rightArm.position.x = 1;
-rightArm.rotation.z = -Math.PI / 8;
+// Arms
+const armY = 3.0;
+const armDist = 0.7;
+// Shoulders
+createBodyPart(new THREE.SphereGeometry(0.18, 16, 16), 'shoulder', [-armDist, armY, 0]);
+createBodyPart(new THREE.SphereGeometry(0.18, 16, 16), 'shoulder', [armDist, armY, 0]);
 
-const leftLeg = createPart(new THREE.CylinderGeometry(0.2, 0.15, 1.8, 8), 'leg', 0.8);
-leftLeg.position.x = -0.4;
-const rightLeg = createPart(new THREE.CylinderGeometry(0.2, 0.15, 1.8, 8), 'leg', 0.8);
-rightLeg.position.x = 0.4;
+// Upper Arms
+createBodyPart(new THREE.CapsuleGeometry(0.12, 0.6, 4, 12), 'shoulder', [-0.9, armY-0.4, 0], [0, 0, 0.2]);
+createBodyPart(new THREE.CapsuleGeometry(0.12, 0.6, 4, 12), 'shoulder', [0.9, armY-0.4, 0], [0, 0, -0.2]);
 
-scene.add(human);
-camera.position.z = 7;
-camera.position.y = 2;
+// Lower Arms & Hands
+createBodyPart(new THREE.CapsuleGeometry(0.1, 0.5, 4, 12), 'wrist', [-1.05, armY-1.0, 0], [0, 0, 0.1]);
+createBodyPart(new THREE.CapsuleGeometry(0.1, 0.5, 4, 12), 'wrist', [1.05, armY-1.0, 0], [0, 0, -0.1]);
+createBodyPart(new THREE.SphereGeometry(0.08, 8, 8), 'wrist', [-1.1, armY-1.4, 0]);
+createBodyPart(new THREE.SphereGeometry(0.08, 8, 8), 'wrist', [1.1, armY-1.4, 0]);
 
-// Particles
-const particlesGeometry = new THREE.BufferGeometry();
-const particlesCount = 1000;
-const posArray = new Float32Array(particlesCount * 3);
-for(let i=0; i < particlesCount * 3; i++) {
-  posArray[i] = (Math.random() - 0.5) * 15;
-}
-particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-const particlesMaterial = new THREE.PointsMaterial({ size: 0.02, color: 0x00f2ff });
-const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-scene.add(particlesMesh);
+// Legs
+const legX = 0.25;
+const legY = 1.0;
+// Thighs
+createBodyPart(new THREE.CapsuleGeometry(0.22, 0.8, 4, 12), 'leg', [-legX, legY+0.2, 0]);
+createBodyPart(new THREE.CapsuleGeometry(0.22, 0.8, 4, 12), 'leg', [legX, legY+0.2, 0]);
+// Calves
+createBodyPart(new THREE.CapsuleGeometry(0.18, 0.9, 4, 12), 'leg', [-legX, legY-0.7, 0]);
+createBodyPart(new THREE.CapsuleGeometry(0.18, 0.9, 4, 12), 'leg', [legX, legY-0.7, 0]);
+// Feet
+createBodyPart(new THREE.BoxGeometry(0.2, 0.1, 0.4), 'leg', [-legX, 0, 0.1]);
+createBodyPart(new THREE.BoxGeometry(0.2, 0.1, 0.4), 'leg', [legX, 0, 0.1]);
 
-// Raycaster
+scene.add(bodyGroup);
+
+// Points Overlay for "HD Scanner" effect
+const pointsMaterial = new THREE.PointsMaterial({ size: 0.015, color: 0x00f2ff });
+bodyGroup.children.forEach(mesh => {
+  const points = new THREE.Points(mesh.geometry, pointsMaterial);
+  points.position.copy(mesh.position);
+  points.rotation.copy(mesh.rotation);
+  scene.add(points);
+});
+
+camera.position.set(0, 2, 8);
+
+// Raycaster Setup
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-window.addEventListener('mousemove', (event) => {
+container.addEventListener('click', (event) => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-});
 
-window.addEventListener('click', () => {
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(human.children);
+  const intersects = raycaster.intersectObjects(bodyGroup.children);
 
   if (intersects.length > 0) {
     const partName = intersects[0].object.name;
     showStretches(partName);
     
-    // Pulse effect
-    const obj = intersects[0].object;
-    obj.material.opacity = 1;
-    setTimeout(() => obj.material.opacity = 0.3, 200);
+    // Highlight effect
+    const originalOpacity = hologramMaterial.opacity;
+    intersects[0].object.material.opacity = 0.8;
+    setTimeout(() => intersects[0].object.material.opacity = originalOpacity, 300);
   }
 });
 
@@ -114,7 +138,7 @@ const closeBtn = document.getElementById('close-panel');
 
 function showStretches(category) {
   const filtered = stretches.filter(s => s.category === category);
-  stretchContent.innerHTML = `<h1>${category.toUpperCase()} STRETCHING</h1>`;
+  stretchContent.innerHTML = `<h1 style="color:#00f2ff; border-bottom: 2px solid #00f2ff; padding-bottom:10px">${category.toUpperCase()}</h1>`;
   
   filtered.forEach(s => {
     const item = document.createElement('div');
@@ -128,17 +152,18 @@ function showStretches(category) {
   });
 
   infoPanel.classList.remove('hidden');
+  controls.autoRotate = false; // Stop rotating when panel is open
 }
 
 closeBtn.addEventListener('click', () => {
   infoPanel.classList.add('hidden');
+  controls.autoRotate = true;
 });
 
-// Animation Loop
+// Animation
 function animate() {
   requestAnimationFrame(animate);
-  human.rotation.y += 0.005;
-  particlesMesh.rotation.y += 0.001;
+  controls.update();
   renderer.render(scene, camera);
 }
 
@@ -151,11 +176,16 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Theme Toggle logic remains similar
+// Theme Toggle
 const themeToggle = document.getElementById('theme-toggle');
 themeToggle.addEventListener('click', () => {
-  const current = document.body.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
+  const isDark = document.body.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
   document.body.setAttribute('data-theme', next);
   themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
+  
+  // Dynamic material color update
+  const newColor = next === 'dark' ? 0x00f2ff : 0x007bff;
+  hologramMaterial.color.set(newColor);
+  hologramMaterial.emissive.set(newColor);
 });
