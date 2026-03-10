@@ -10,7 +10,7 @@ renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 canvasContainer.appendChild(renderer.domElement);
 
-camera.position.set(0, 0, 15); // 그림이 커짐에 따라 카메라 거리를 10에서 15로 조정
+camera.position.set(0, 0, 25); // 그림이 2배 커짐에 따라 카메라 거리를 15에서 25로 대폭 조정
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableRotate = false;
@@ -53,7 +53,7 @@ textureLoader.load(
     (texture) => {
         console.log('Texture loaded successfully');
         const aspect = texture.image.width / texture.image.height;
-        const height = 17.5; // 11.7 * 1.5 = 17.5 (50% additional enlargement)
+        const height = 35; // 17.5 * 2.0 = 35 (2x enlargement)
         const width = height * aspect;
         
         const geometry = new THREE.PlaneGeometry(width, height);
@@ -78,7 +78,7 @@ textureLoader.load(
     undefined,
     (err) => {
         console.error('Error loading body.png:', err);
-        const fallbackGeo = new THREE.PlaneGeometry(8, 16);
+        const fallbackGeo = new THREE.PlaneGeometry(15, 30);
         const fallbackMat = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
         bodyGroup.add(new THREE.Mesh(fallbackGeo, fallbackMat));
     }
@@ -94,16 +94,16 @@ function createClickTargets() {
         visible: true 
     });
 
-    // 50% 추가 확대된 크기에 맞춘 정밀 좌표 재조정
+    // 2배 확대된 크기에 맞춘 모든 좌표값 2배 보정
     const targets = {
-        'head': { pos: [0, 6.8, 0.2], size: 1.2, part: '목' },
-        'shoulder_l': { pos: [2.1, 4.5, 0.2], size: 0.9, part: '어깨' },
-        'shoulder_r': { pos: [-2.1, 4.5, 0.2], size: 0.9, part: '어깨' },
-        'chest': { pos: [0, 3.0, 0.2], size: 2.0, part: '등' },
-        'arm_l': { pos: [3.9, 1.5, 0.2], size: 0.9, part: '팔/손목' },
-        'arm_r': { pos: [-3.9, 1.5, 0.2], size: 0.9, part: '팔/손목' },
-        'leg_l': { pos: [1.5, -3.5, 0.2], size: 1.4, part: '다리' },
-        'leg_r': { pos: [-1.5, -3.5, 0.2], size: 1.4, part: '다리' },
+        'head': { pos: [0, 13.6, 0.2], size: 2.4, part: '목' },
+        'shoulder_l': { pos: [4.2, 9.0, 0.2], size: 1.8, part: '어깨' },
+        'shoulder_r': { pos: [-4.2, 9.0, 0.2], size: 1.8, part: '어깨' },
+        'chest': { pos: [0, 6.0, 0.2], size: 4.0, part: '등' },
+        'arm_l': { pos: [7.8, 3.0, 0.2], size: 1.8, part: '팔/손목' },
+        'arm_r': { pos: [-7.8, 3.0, 0.2], size: 1.8, part: '팔/손목' },
+        'leg_l': { pos: [3.0, -7.0, 0.2], size: 2.8, part: '다리' },
+        'leg_r': { pos: [-3.0, -7.0, 0.2], size: 2.8, part: '다리' },
     };
 
     for (const [name, data] of Object.entries(targets)) {
@@ -182,7 +182,7 @@ canvasContainer.addEventListener('click', onClick);
 function animate(time) {
     requestAnimationFrame(animate);
     if (bodyGroup.children.length > 0) {
-        bodyGroup.position.y = Math.sin(time * 0.002) * 0.15;
+        bodyGroup.position.y = Math.sin(time * 0.002) * 0.2; // 부드러운 움직임도 비례해서 조금 키움
         clickTargets.position.y = bodyGroup.position.y;
     }
     controls.update();
