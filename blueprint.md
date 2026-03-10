@@ -2,7 +2,7 @@
 
 ## Overview
 
-This application provides a visually engaging and interactive guide to body stretches. Instead of a traditional menu, users interact with a 3D model of a human body. Clicking on different body parts filters and displays relevant stretching exercises, creating an intuitive and futuristic user experience.
+This application provides a visually engaging and interactive guide to body stretches. It uses video textures on 3D planes with a chromakey shader to display various stretching motions with transparent backgrounds. Users can select a body part to filter and view the corresponding animated stretching exercises, creating a dynamic and intuitive user experience.
 
 ## Current State & Implemented Features
 
@@ -10,41 +10,37 @@ This application provides a visually engaging and interactive guide to body stre
     *   HTML, CSS, JavaScript (ES Modules)
     *   Three.js for 3D rendering
 *   **Design & Style:**
-    *   **Dark Theme:** A deep, dark background to make the 3D model and UI elements pop.
-    *   **Futuristic Aesthetic:** Inspired by Tron-like visuals, using glowing lines and a wireframe 3D model.
+    *   **Dark Theme:** A deep, dark background to make the video views and UI elements pop.
+    *   **Futuristic Aesthetic:** Clean, modern interface with glowing UI elements.
     *   **Color Palette:** Primary colors are shades of glowing blue, cyan, and yellow against a dark backdrop.
     *   **Typography:** Clean, modern sans-serif font (Pretendard).
-    *   **Layout:** Centered, responsive layout.
 *   **Core Features:**
-    *   **Interactive 3D Model:** A central, rotating 3D human model serves as the main navigation.
-    *   **Body Part Selection:** The model is divided into clickable zones (head, shoulders, back, arms/wrists, legs). Raycasting is used to detect user clicks on these zones.
-    *   **Dynamic Highlighting:** When a body part is hovered over or selected, it glows or changes color to provide clear visual feedback.
-    *   **Stretch Display:** A grid or list of "cards," where each card contains information for a specific stretch (title, description, steps).
-    *   **Filtering:** Clicking a body part on the 3D model filters the stretch cards to show only relevant exercises. A button to show all stretches is also available.
+    *   **Video-based 3D Views:** Each stretching exercise is presented as a video texture on a 3D plane.
+    *   **Chromakey Shader:** A custom GLSL shader is used to remove the green screen background from the videos in real-time, making them appear transparent.
+    *   **Body Part Filtering:** UI buttons allow users to filter stretches by body part (e.g., '목', '어깨', '허리').
+    *   **Dynamic Layout:** The video views are dynamically arranged in a grid in the 3D space.
+    *   **Interactive Controls:** Users can navigate the 3D scene using zoom and pan controls.
 
-## Current Action Plan: Initial Implementation
+## Current Action Plan: Transition to Video-Based Views
 
-1.  **Project Setup:**
-    *   Structure the project with `index.html`, `main.js`, and `style.css`.
-    *   Create a `blueprint.md` to document the plan.
-2.  **HTML Structure (`index.html`):**
-    *   Add a canvas for the Three.js model.
-    *   Create a container for the title and subtitle.
-    *   Define a main grid area where stretch cards will be dynamically inserted.
-    *   Include the Three.js library from a CDN.
-3.  **Styling (`style.css`):**
-    *   Implement the dark theme and futuristic aesthetic.
-    *   Style the header, the main grid, and the card elements for the stretches.
-    *   Ensure the layout is responsive and visually appealing.
-4.  **3D Model and Logic (`main.js`):**
-    *   Set up the Three.js scene, camera, and renderer.
-    *   Load a 3D model of a human body (e.g., in `gltf` format).
-    *   Apply a wireframe or semi-transparent material with emissive properties to achieve the glowing effect.
-    *   Implement rotation animation for the model.
-    *   Set up raycasting to detect user clicks on the model.
-    *   Define mapping between the 3D model's parts and the stretch categories (e.g., 'neck', 'shoulder').
-    *   Write functions to filter and display the stretch cards based on the selected body part.
-    *   Populate the initial view with all stretches.
-5.  **Refinement:**
-    *   Check for errors and ensure all interactions are smooth.
-    *   Adjust lighting, materials, and colors for the best visual impact.
+1.  **Refactor Project Structure:**
+    *   Update `blueprint.md` with the new video-centric plan.
+    *   Modify `index.html` to remove the GLTF model canvas and add a container for filter buttons.
+    *   Update `style.css` to style the new filter buttons and remove old, unused styles.
+2.  **Implement Video Views in `main.js`:**
+    *   Remove all `GLTFLoader` and wireframe model-related code.
+    *   Define the chromakey `vertexShader` and `fragmentShader`.
+    *   Create a data structure for stretches, including `title`, `bodyPart`, and `videoSrc` for each.
+    *   Implement a function that creates a `THREE.Mesh` (a plane) for a given stretch:
+        *   Creates an HTML `<video>` element programmatically.
+        *   Creates a `THREE.VideoTexture` from the video.
+        *   Creates a `THREE.ShaderMaterial` using the chromakey shader and the video texture.
+        *   Creates the `THREE.Mesh` and adds it to a group.
+3.  **Implement Filtering and Layout:**
+    *   Create filter buttons in the UI.
+    *   Add event listeners to the buttons to filter the video views based on the selected `bodyPart`.
+    *   Write a function to arrange the currently visible video views in a grid pattern within the 3D scene.
+4.  **Final Touches:**
+    *   Ensure videos play automatically and loop.
+    *   Set up camera controls (`OrbitControls`) to allow users to zoom and inspect the video views.
+    *   Perform error checking and ensure a smooth user experience.
