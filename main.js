@@ -53,15 +53,15 @@ textureLoader.load(
     (texture) => {
         console.log('Texture loaded successfully');
         const aspect = texture.image.width / texture.image.height;
-        const height = 9;
+        const height = 11.7; // 9 * 1.3 = 11.7 (30% enlargement)
         const width = height * aspect;
         
         const geometry = new THREE.PlaneGeometry(width, height);
         const material = new THREE.ShaderMaterial({
             uniforms: {
                 map: { value: texture },
-                keyColor: { value: new THREE.Color(0x00ff00) }, // 초록색 배경
-                similarity: { value: 0.35 }, // 민감도 조절
+                keyColor: { value: new THREE.Color(0x00ff00) },
+                similarity: { value: 0.35 },
                 smoothness: { value: 0.05 }
             },
             vertexShader: vertexShader,
@@ -78,8 +78,7 @@ textureLoader.load(
     undefined,
     (err) => {
         console.error('Error loading body.png:', err);
-        // 대체 수단: 사진이 안 보이면 빨간 평면이라도 띄워서 경로 문제인지 확인
-        const fallbackGeo = new THREE.PlaneGeometry(4, 8);
+        const fallbackGeo = new THREE.PlaneGeometry(5, 10);
         const fallbackMat = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
         bodyGroup.add(new THREE.Mesh(fallbackGeo, fallbackMat));
     }
@@ -95,15 +94,16 @@ function createClickTargets() {
         visible: true 
     });
 
+    // 30% 확대된 크기에 맞춘 정밀 좌표 재조정
     const targets = {
-        'head': { pos: [0, 3.5, 0.2], size: 0.6, part: '목' },
-        'shoulder_l': { pos: [1.1, 2.2, 0.2], size: 0.5, part: '어깨' },
-        'shoulder_r': { pos: [-1.1, 2.2, 0.2], size: 0.5, part: '어깨' },
-        'chest': { pos: [0, 1.5, 0.2], size: 1.0, part: '등' },
-        'arm_l': { pos: [2.0, 0.8, 0.2], size: 0.5, part: '팔/손목' },
-        'arm_r': { pos: [-2.0, 0.8, 0.2], size: 0.5, part: '팔/손목' },
-        'leg_l': { pos: [0.8, -1.8, 0.2], size: 0.7, part: '다리' },
-        'leg_r': { pos: [-0.8, -1.8, 0.2], size: 0.7, part: '다리' },
+        'head': { pos: [0, 4.5, 0.2], size: 0.8, part: '목' },
+        'shoulder_l': { pos: [1.4, 3.0, 0.2], size: 0.6, part: '어깨' },
+        'shoulder_r': { pos: [-1.4, 3.0, 0.2], size: 0.6, part: '어깨' },
+        'chest': { pos: [0, 2.0, 0.2], size: 1.3, part: '등' },
+        'arm_l': { pos: [2.6, 1.0, 0.2], size: 0.6, part: '팔/손목' },
+        'arm_r': { pos: [-2.6, 1.0, 0.2], size: 0.6, part: '팔/손목' },
+        'leg_l': { pos: [1.0, -2.3, 0.2], size: 0.9, part: '다리' },
+        'leg_r': { pos: [-1.0, -2.3, 0.2], size: 0.9, part: '다리' },
     };
 
     for (const [name, data] of Object.entries(targets)) {
