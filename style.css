@@ -1,12 +1,19 @@
 :root {
-    --bg-color: #0d1117;
-    --card-bg: #161b22;
-    --text-primary: #e6edf3;
-    --text-secondary: #8b949e;
-    --accent-color: #2f81f7;
-    --border-color: #30363d;
-    --success-color: #238636;
-    --danger-color: #da3633;
+    --bg-color: #0b0e14;
+    --card-bg: #1a1f26;
+    --text-primary: #f0f2f5;
+    --text-secondary: #a0aec0;
+    --border-color: #2d3748;
+    
+    /* MZ Pastel Palette */
+    --pastel-blue: #a5b4fc;   /* Lavender Blue */
+    --pastel-peach: #fda4af;  /* Soft Coral */
+    --pastel-mint: #99f6e4;   /* Mint */
+    --pastel-purple: #c084fc; /* Violet */
+    --pastel-green: #bef264;  /* Lime/Sage */
+    --pastel-rose: #fca5a5;   /* Rose */
+    
+    --accent-color: var(--pastel-blue);
 }
 
 * {
@@ -18,6 +25,7 @@
 
 body {
     background-color: var(--bg-color);
+    background-image: radial-gradient(circle at 50% 0%, #1c2331 0%, #0b0e14 100%);
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
@@ -28,169 +36,149 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 2rem;
-    background-color: var(--card-bg);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    padding: 2rem;
+    background: transparent;
 }
 
 .title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    background: linear-gradient(90deg, #58a6ff, #bc8cff);
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--pastel-blue), var(--pastel-purple));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    margin-bottom: 0.2rem;
 }
 
 .subtitle {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: var(--text-secondary);
+    font-weight: 500;
 }
 
 .market-status {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: rgba(35, 134, 54, 0.1);
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
-    color: #3fb950;
-    border: 1px solid rgba(63, 185, 80, 0.3);
+    gap: 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .status-dot {
-    width: 8px;
-    height: 8px;
-    background-color: #3fb950;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-}
-
-.pulse {
-    animation: pulse-animation 2s infinite;
-}
-
-@keyframes pulse-animation {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(63, 185, 80, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(63, 185, 80, 0); }
+    box-shadow: 0 0 10px currentColor;
 }
 
 /* Dashboard Grid */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 1.5rem;
-    padding: 2rem;
-    max-width: 1600px;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 2rem;
+    padding: 0 2rem 4rem;
+    max-width: 1800px;
     margin: 0 auto;
 }
 
 .chart-card {
-    background-color: var(--card-bg);
+    background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1rem;
+    border-radius: 24px;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.chart-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .chart-title {
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 700;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0;
+    gap: 0.8rem;
 }
 
+.chart-title::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+}
+
+/* Interval Selector */
 .interval-selector {
     display: flex;
-    gap: 4px;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 2px;
-    border-radius: 6px;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px;
+    border-radius: 12px;
 }
 
 .int-btn {
     background: none;
     border: none;
     color: var(--text-secondary);
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 4px 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 12px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 8px;
     transition: all 0.2s;
 }
 
 .int-btn:hover {
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.int-btn.active {
-    background: var(--accent-color);
     color: white;
 }
 
-.chart-title::before {
-    content: '';
-    display: inline-block;
-    width: 3px;
-    height: 14px;
-    background-color: var(--accent-color);
-    border-radius: 2px;
+.int-btn.active {
+    background: white;
+    color: var(--bg-color);
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
 }
 
 .chart-container {
     flex-grow: 1;
-    min-height: 300px;
+    min-height: 320px;
     width: 100%;
-}
-
-.tradingview-widget-container {
-    width: 100%;
-    height: 100%;
+    border-radius: 16px;
+    overflow: hidden;
 }
 
 /* Footer */
 .footer {
     text-align: center;
-    padding: 2rem;
+    padding: 3rem;
     color: var(--text-secondary);
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     border-top: 1px solid var(--border-color);
-    margin-top: 2rem;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-    
     .dashboard-grid {
         grid-template-columns: 1fr;
         padding: 1rem;
-    }
-    
-    .chart-container {
-        min-height: 300px;
     }
 }

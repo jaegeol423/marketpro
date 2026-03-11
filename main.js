@@ -1,5 +1,5 @@
 /**
- * KOSPI Market Dashboard - Logic & Charts
+ * KOSPI Market Dashboard - Logic & Charts (MZ Pastel Edition)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function initClock() {
     const timeDisplay = document.getElementById('market-time');
+    const dot = document.querySelector('.status-dot');
+    
     function updateClock() {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
@@ -20,13 +22,16 @@ function initClock() {
         const seconds = String(now.getSeconds()).padStart(2, '0');
         const isMarketOpen = checkMarketHours(now);
         const statusText = isMarketOpen ? 'MARKET OPEN' : 'MARKET CLOSED';
+        
         timeDisplay.innerHTML = `${statusText} | ${hours}:${minutes}:${seconds}`;
-        const dot = document.querySelector('.status-dot');
+        
         if (isMarketOpen) {
-            dot.style.backgroundColor = '#3fb950';
+            dot.style.color = '#bef264'; // Mint/Lime
+            dot.style.backgroundColor = '#bef264';
             dot.classList.add('pulse');
         } else {
-            dot.style.backgroundColor = '#f85149';
+            dot.style.color = '#fca5a5'; // Rose
+            dot.style.backgroundColor = '#fca5a5';
             dot.classList.remove('pulse');
         }
     }
@@ -42,11 +47,12 @@ function checkMarketHours(date) {
 }
 
 /**
- * 개별 차트 생성 함수
+ * 개별 차트 생성 함수 (파스텔 테마 적용)
  */
 function createWidget(containerId, symbol, interval = "D") {
-    // 기존 차트 내용 삭제 (새로 그리기 위해)
     document.getElementById(containerId).innerHTML = '';
+    
+    const colors = getPastelColors(containerId);
     
     return new TradingView.widget({
         "width": "100%",
@@ -57,29 +63,37 @@ function createWidget(containerId, symbol, interval = "D") {
         "theme": "dark",
         "style": "3", // Area Chart
         "locale": "ko",
-        "toolbar_bg": "#f1f3f6",
+        "toolbar_bg": "#1a1f26",
         "enable_publishing": false,
         "hide_top_toolbar": true,
         "hide_legend": true,
         "save_image": false,
         "container_id": containerId,
-        "lineColor": getLineColor(containerId),
-        "topColor": getTopColor(containerId)
+        "lineColor": colors.line,
+        "topColor": colors.top,
+        "bottomColor": "rgba(26, 31, 38, 0)",
+        "backgroundColor": "#1a1f26",
+        "gridColor": "rgba(45, 55, 72, 0.2)"
     });
 }
 
-function getLineColor(id) {
-    if (id.includes('kospi')) return "#2962FF";
-    if (id.includes('sp500')) return "#FF9800";
-    if (id.includes('nasdaq')) return "#00BCD4";
-    if (id.includes('k200')) return "#9C27B0";
-    if (id.includes('fx')) return "#4CAF50";
-    return "#F44336";
-}
+/**
+ * MZ 파스텔 색상 추출
+ */
+function getPastelColors(id) {
+    let line = "#a5b4fc"; // Default Lavender
+    
+    if (id.includes('kospi')) line = "#a5b4fc";      // Lavender Blue
+    else if (id.includes('sp500')) line = "#fda4af"; // Soft Peach
+    else if (id.includes('nasdaq')) line = "#99f6e4"; // Mint
+    else if (id.includes('k200')) line = "#c084fc";   // Violet
+    else if (id.includes('fx')) line = "#bef264";     // Lime
+    else if (id.includes('yield')) line = "#fca5a5";  // Rose
 
-function getTopColor(id) {
-    const hex = getLineColor(id);
-    return hex + "4D"; // 30% alpha
+    return {
+        line: line,
+        top: line + "33" // 20% 투명도
+    };
 }
 
 /**
@@ -107,11 +121,9 @@ function setupIntervalControls() {
             const symbol = card.dataset.symbol;
             const interval = e.target.dataset.int;
 
-            // 버튼 상태 업데이트
             card.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
 
-            // 차트 업데이트
             createWidget(containerId, symbol, interval);
         });
     });
