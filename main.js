@@ -1,125 +1,91 @@
 /**
- * MARKET INSIGHT PRO - Personalization & News Logic
+ * MARKET INSIGHT PRO - AdSense Ready High-Quality Portal
  */
 
 let starredAssets = JSON.parse(localStorage.getItem('starredAssets')) || [];
 let currentTheme = localStorage.getItem('theme') || 'pastel-dark';
-let isSidebarOpen = localStorage.getItem('sidebarOpen') !== 'false'; // 기본값 열림
+let isSidebarOpen = localStorage.getItem('sidebarOpen') !== 'false';
 
 document.addEventListener('DOMContentLoaded', () => {
     initClock();
     initTheme();
+    initNavigation(); // 메뉴 네비게이션 추가
     initSidebar();
     initKoreanNewsWidget();
     initAllCharts();
     setupIntervalControls();
     setupWatchlistControls();
-    initDisqus(); // Disqus 초기화 추가
+    initDisqus();
 });
 
-// Disqus 댓글 초기화
-function initDisqus() {
-    var d = document, s = d.createElement('script');
-    s.src = 'https://test-vmewaufzig.disqus.com/embed.js'; // 사용자님의 고유 주소로 업데이트 완료
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-}
+/**
+ * 1. 메뉴 네비게이션 (AdSense Navigability)
+ */
+function initNavigation() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.page-section');
 
-
-// 사이드바 토글 및 상태 유지
-function initSidebar() {
-    const body = document.body;
-    const toggleBtn = document.getElementById('news-toggle-btn');
-    
-    // 초기 상태 설정
-    if (!isSidebarOpen) {
-        body.classList.add('sidebar-closed');
-        body.classList.remove('sidebar-open');
+    function switchPage(targetId) {
+        sections.forEach(section => {
+            section.classList.toggle('hidden', section.id !== targetId);
+        });
+        navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === `#${targetId}`);
+        });
+        // 대시보드로 돌아올 때 차트 크기 재조정
+        if (targetId === 'dashboard') {
+            window.dispatchEvent(new Event('resize'));
+        }
+        window.scrollTo(0, 0);
     }
 
-    toggleBtn.addEventListener('click', () => {
-        isSidebarOpen = !isSidebarOpen;
-        body.classList.toggle('sidebar-closed');
-        body.classList.toggle('sidebar-open');
-        localStorage.setItem('sidebarOpen', isSidebarOpen);
-        
-        // 사이드바 전환 시 차트 크기 재조정을 위해 약간의 지연 후 윈도우 리사이즈 이벤트 발생
-        setTimeout(() => {
-            window.dispatchEvent(new Event('resize'));
-        }, 400);
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            switchPage(targetId);
+            history.pushState(null, null, `#${targetId}`);
+        });
     });
+
+    // 초기 해시 체크
+    const hash = window.location.hash.substring(1);
+    if (hash && document.getElementById(hash)) {
+        switchPage(hash);
+    }
 }
 
+/**
+ * 2. 테마 및 사이드바 (UX Optimization)
+ */
 function initTheme() {
-    document.body.className = isSidebarOpen ? `${currentTheme} sidebar-open` : `${currentTheme} sidebar-closed`;
+    updateBodyClass();
     const themeBtn = document.getElementById('theme-btn');
-    themeBtn.innerHTML = currentTheme === 'pastel-dark' ? '🌙' : '🌑';
-    
     themeBtn.addEventListener('click', () => {
         currentTheme = currentTheme === 'pastel-dark' ? 'pure-dark' : 'pastel-dark';
-        document.body.className = isSidebarOpen ? `${currentTheme} sidebar-open` : `${currentTheme} sidebar-closed`;
-        themeBtn.innerHTML = currentTheme === 'pastel-dark' ? '🌙' : '🌑';
+        updateBodyClass();
         localStorage.setItem('theme', currentTheme);
-        initAllCharts();
+        initAllCharts(); // 배경색 동기화
     });
 }
 
-function initKoreanNewsWidget() {
-    const newsContainer = document.getElementById('tradingview-news');
-    if (!newsContainer) return;
-    newsContainer.innerHTML = '';
-    
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js';
-    script.async = true;
-    script.innerHTML = JSON.stringify({
-        "feedMode": "all_symbols",
-        "colorTheme": "dark",
-        "isTransparent": true,
-        "displayMode": "regular",
-        "width": "100%",
-        "height": "100%",
-        "locale": "ko"
-    });
-    newsContainer.appendChild(script);
+function updateBodyClass() {
+    document.body.className = `${currentTheme} ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`;
 }
 
-function setupWatchlistControls() {
-    const favBtns = document.querySelectorAll('.fav-btn');
-    const watchlistSection = document.getElementById('watchlist-section');
-
-    function updateWatchlistUI() {
-        let count = 0;
-        document.querySelectorAll('.chart-card').forEach(card => {
-            const assetId = card.dataset.id;
-            const btn = card.querySelector('.fav-btn');
-            if (starredAssets.includes(assetId)) {
-                btn.classList.add('active');
-                count++;
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-        if (watchlistSection) watchlistSection.classList.toggle('hidden', count === 0);
-    }
-
-    favBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const card = e.target.closest('.chart-card');
-            const assetId = card.dataset.id;
-            if (starredAssets.includes(assetId)) {
-                starredAssets = starredAssets.filter(id => id !== assetId);
-            } else {
-                starredAssets.push(assetId);
-            }
-            localStorage.setItem('starredAssets', JSON.stringify(starredAssets));
-            updateWatchlistUI();
-        });
+function initSidebar() {
+    const toggleBtn = document.getElementById('news-toggle-btn');
+    toggleBtn.addEventListener('click', () => {
+        isSidebarOpen = !isSidebarOpen;
+        updateBodyClass();
+        localStorage.setItem('sidebarOpen', isSidebarOpen);
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
     });
-    updateWatchlistUI();
 }
 
+/**
+ * 3. 차트 렌더링 (Visual Quality)
+ */
 function renderAdvancedPro(containerId, symbol, interval = "D") {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -150,32 +116,64 @@ function renderAdvancedPro(containerId, symbol, interval = "D") {
             "mainSeriesProperties.areaStyle.linecolor": colors.line,
             "mainSeriesProperties.areaStyle.color1": colors.top,
             "mainSeriesProperties.areaStyle.color2": "rgba(0, 0, 0, 0)",
-            "mainSeriesProperties.areaStyle.linewidth": 2,
+            "mainSeriesProperties.areaStyle.linewidth": 3,
             "paneProperties.background": themeValue,
             "scalesProperties.textColor": "#a0aec0",
-            "scalesProperties.fontSize": 10,
             "legendProperties.showSeriesOHLC": true,
             "legendProperties.showBarChange": true
         }
     });
 }
 
+// --- 기타 필수 함수 (기존 로직 유지) ---
 function initClock() {
     const timeDisplay = document.getElementById('market-time');
-    if (!timeDisplay) return;
     setInterval(() => {
-        timeDisplay.innerHTML = new Date().toLocaleTimeString('ko-KR');
+        if(timeDisplay) timeDisplay.innerHTML = new Date().toLocaleTimeString('ko-KR');
     }, 1000);
+}
+
+function initKoreanNewsWidget() {
+    const container = document.getElementById('tradingview-news');
+    if (!container) return;
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js';
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+        "feedMode": "all_symbols", "colorTheme": "dark", "isTransparent": true,
+        "displayMode": "regular", "width": "100%", "height": "100%", "locale": "ko"
+    });
+    container.appendChild(script);
+}
+
+function setupWatchlistControls() {
+    const favBtns = document.querySelectorAll('.fav-btn');
+    const watchlistSection = document.getElementById('watchlist-section');
+    function updateUI() {
+        let count = 0;
+        document.querySelectorAll('.chart-card').forEach(card => {
+            const btn = card.querySelector('.fav-btn');
+            if (starredAssets.includes(card.dataset.id)) { btn.classList.add('active'); count++; }
+            else { btn.classList.remove('active'); }
+        });
+        if(watchlistSection) watchlistSection.classList.toggle('hidden', count === 0);
+    }
+    favBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.target.closest('.chart-card').dataset.id;
+            starredAssets = starredAssets.includes(id) ? starredAssets.filter(i => i!==id) : [...starredAssets, id];
+            localStorage.setItem('starredAssets', JSON.stringify(starredAssets));
+            updateUI();
+        });
+    });
+    updateUI();
 }
 
 function getPastelColors(id) {
     let line = "rgba(165, 180, 252, 1)"; 
     if (id.includes('kospi')) line = "rgba(165, 180, 252, 1)";      
-    else if (id.includes('sp500')) line = "rgba(253, 164, 175, 1)"; 
     else if (id.includes('nasdaq')) line = "rgba(153, 246, 228, 1)"; 
-    else if (id.includes('sox')) line = "rgba(190, 242, 100, 1)";    
-    else if (id.includes('gold')) line = "rgba(253, 224, 71, 1)";   
-    else if (id.includes('btc')) line = "rgba(244, 114, 182, 1)";    
     return { line: line, top: line.replace('1)', '0.2)') };
 }
 
@@ -190,12 +188,17 @@ function setupIntervalControls() {
     document.querySelectorAll('.int-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const card = e.target.closest('.chart-card');
-            const container = card.querySelector('.chart-container');
-            if (!container) return;
             const interval = e.target.dataset.int;
             card.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
-            renderAdvancedPro(container.id, card.dataset.symbol, interval);
+            renderAdvancedPro(card.querySelector('.chart-container').id, card.dataset.symbol, interval);
         });
     });
+}
+
+function initDisqus() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://test-vmewaufzig.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
 }

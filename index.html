@@ -3,25 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MARKET INSIGHT Pro - Personal Investment Platform</title>
+    <meta name="description" content="실시간 글로벌 시장 지수, 거시 경제 지표 및 원자재 가격을 한눈에 확인하고 분석하는 전문 투자 대시보드입니다.">
+    <meta name="keywords" content="코스피, 나스닥, S&P500, 비트코인, 금값, 원유가, 투자 대시보드, 시장 분석">
+    <title>MARKET INSIGHT PRO - 글로벌 투자 지표 및 시장 분석 플랫폼</title>
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 </head>
 <body class="pastel-dark sidebar-open">
     <header class="header">
-        <div class="header-left">
-            <button id="news-toggle-btn" class="icon-btn" title="뉴스 피드 토글">📰 뉴스</button>
-            <div class="logo-area">
-                <h1 class="title">MARKET INSIGHT <span class="pro-badge">PRO</span></h1>
+        <div class="header-top">
+            <div class="header-left">
+                <button id="news-toggle-btn" class="icon-btn" title="뉴스 피드 토글">📰 뉴스</button>
+                <div class="logo-area">
+                    <h1 class="title">MARKET INSIGHT <span class="pro-badge">PRO</span></h1>
+                </div>
             </div>
-        </div>
-        <div class="header-controls">
-            <div class="theme-toggle">
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#dashboard" class="nav-link active">대시보드</a></li>
+                    <li><a href="#analysis-guide" class="nav-link">시장 분석 가이드</a></li>
+                    <li><a href="#about" class="nav-link">서비스 소개</a></li>
+                    <li><a href="#privacy" class="nav-link">개인정보처리방침</a></li>
+                </ul>
+            </nav>
+            <div class="header-controls">
                 <button id="theme-btn" title="테마 변경">🌙</button>
-            </div>
-            <div class="market-status">
-                <span class="status-dot pulse"></span>
-                <span id="market-time">LOADING...</span>
+                <div class="market-status">
+                    <span class="status-dot pulse"></span>
+                    <span id="market-time">LOADING...</span>
+                </div>
             </div>
         </div>
     </header>
@@ -29,116 +39,107 @@
     <div class="main-layout">
         <aside id="sidebar" class="sidebar news-sidebar">
             <div class="sidebar-header">
-                <h2 class="sidebar-label">실시간 경제 뉴스</h2>
+                <h2 class="sidebar-label">실시간 경제 헤드라인</h2>
             </div>
-            <div id="tradingview-news" class="news-container">
-                <!-- TradingView News Widget -->
-            </div>
+            <div id="tradingview-news" class="news-container"></div>
         </aside>
 
-        <main class="content-area container">
-            <!-- SECTION 0: MY WATCHLIST -->
-            <section id="watchlist-section" class="dashboard-section hidden">
-                <h2 class="section-label">★ MY WATCHLIST</h2>
-                <div id="watchlist-grid" class="dashboard-grid main-grid"></div>
+        <main class="content-area">
+            <!-- DASHBOARD SECTION -->
+            <section id="dashboard" class="page-section">
+                <!-- MY WATCHLIST -->
+                <section id="watchlist-section" class="dashboard-section hidden">
+                    <h2 class="section-label">★ MY WATCHLIST</h2>
+                    <div id="watchlist-grid" class="dashboard-grid main-grid"></div>
+                </section>
+
+                <!-- GLOBAL MARKET -->
+                <section class="dashboard-section">
+                    <h2 class="section-label">GLOBAL MARKET</h2>
+                    <div class="dashboard-grid main-grid">
+                        <div class="chart-card" data-symbol="AMEX:EWY" data-id="kospi">
+                            <div class="card-header">
+                                <h3 class="chart-title">KOSPI (한국 지수)</h3>
+                                <div class="card-actions">
+                                    <button class="fav-btn">★</button>
+                                    <div class="interval-selector">
+                                        <button class="int-btn" data-int="60">1h</button>
+                                        <button class="int-btn active" data-int="D">D</button>
+                                        <button class="int-btn" data-int="W">W</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="chart_kospi" class="chart-container"></div>
+                        </div>
+                        <div class="chart-card" data-symbol="NASDAQ:QQQ" data-id="nasdaq">
+                            <div class="card-header">
+                                <h3 class="chart-title">NASDAQ 100</h3>
+                                <div class="card-actions">
+                                    <button class="fav-btn">★</button>
+                                    <div class="interval-selector">
+                                        <button class="int-btn" data-int="60">1h</button>
+                                        <button class="int-btn active" data-int="D">D</button>
+                                        <button class="int-btn" data-int="W">W</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="chart_nasdaq" class="chart-container"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ASSETS & SECTORS -->
+                <section class="dashboard-section">
+                    <h2 class="section-label">CORE ASSETS & CRYPTO</h2>
+                    <div class="dashboard-grid sub-grid">
+                        <div class="chart-card mini" data-symbol="FX_IDC:USDKRW" data-id="fx">
+                            <div class="card-header"><h3 class="chart-title">환율</h3><button class="fav-btn">★</button></div>
+                            <div id="chart_fx" class="chart-container small"></div>
+                        </div>
+                        <div class="chart-card mini" data-symbol="BINANCE:BTCUSDT" data-id="btc">
+                            <div class="card-header"><h3 class="chart-title">비트코인</h3><button class="fav-btn">★</button></div>
+                            <div id="chart_btc" class="chart-container small"></div>
+                        </div>
+                    </div>
+                </section>
             </section>
 
-            <!-- SECTION 1: GLOBAL MARKET -->
-            <section class="dashboard-section">
-                <h2 class="section-label">GLOBAL MARKET</h2>
-                <div class="dashboard-grid main-grid">
-                    <div class="chart-card" data-symbol="AMEX:EWY" data-id="kospi">
-                        <div class="card-header">
-                            <h3 class="chart-title">KOSPI (한국)</h3>
-                            <div class="card-actions">
-                                <button class="fav-btn">★</button>
-                                <div class="interval-selector">
-                                    <button class="int-btn" data-int="60">1h</button>
-                                    <button class="int-btn active" data-int="D">D</button>
-                                    <button class="int-btn" data-int="W">W</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="chart_kospi" class="chart-container"></div>
-                    </div>
-                    <div class="chart-card" data-symbol="AMEX:SPY" data-id="sp500">
-                        <div class="card-header">
-                            <h3 class="chart-title">S&P 500 (미국)</h3>
-                            <div class="card-actions">
-                                <button class="fav-btn">★</button>
-                                <div class="interval-selector">
-                                    <button class="int-btn" data-int="60">1h</button>
-                                    <button class="int-btn active" data-int="D">D</button>
-                                    <button class="int-btn" data-int="W">W</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="chart_sp500" class="chart-container"></div>
-                    </div>
-                    <div class="chart-card" data-symbol="NASDAQ:QQQ" data-id="nasdaq">
-                        <div class="card-header">
-                            <h3 class="chart-title">NASDAQ 100</h3>
-                            <div class="card-actions">
-                                <button class="fav-btn">★</button>
-                                <div class="interval-selector">
-                                    <button class="int-btn" data-int="60">1h</button>
-                                    <button class="int-btn active" data-int="D">D</button>
-                                    <button class="int-btn" data-int="W">W</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="chart_nasdaq" class="chart-container"></div>
-                    </div>
-                    <div class="chart-card" data-symbol="NASDAQ:SOXX" data-id="sox">
-                        <div class="card-header">
-                            <h3 class="chart-title">반도체 (SOX)</h3>
-                            <div class="card-actions">
-                                <button class="fav-btn">★</button>
-                                <div class="interval-selector">
-                                    <button class="int-btn" data-int="60">1h</button>
-                                    <button class="int-btn active" data-int="D">D</button>
-                                    <button class="int-btn" data-int="W">W</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="chart_sox" class="chart-container"></div>
-                    </div>
+            <!-- ORIGINAL CONTENT: ANALYSIS GUIDE -->
+            <section id="analysis-guide" class="page-section hidden content-rich">
+                <h2 class="section-label">시장을 읽는 분석 가이드</h2>
+                <article class="article-card">
+                    <h3>1. 지수 투자의 기초: KOSPI와 나스닥의 관계</h3>
+                    <p>글로벌 증시는 상호 연결되어 있습니다. 특히 한국의 KOSPI는 미국 나스닥(NASDAQ) 지수와 높은 상관관계를 보입니다. 밤사이 나스닥의 변동성을 확인하는 것은 국내 장 시작 전 필수적인 절차입니다.</p>
+                    <h3>2. 금리와 환율이 자산에 미치는 영향</h3>
+                    <p>원/달러 환율이 상승하면 국내 증시의 외국인 자금 이탈 가능성이 높아집니다. 또한 미국채 금리의 변화는 기술주와 성장주의 밸류에이션에 직접적인 영향을 미치므로 대시보드의 MACRO 지표를 상시 모니터링해야 합니다.</p>
+                </article>
+            </section>
+
+            <!-- ABOUT SECTION -->
+            <section id="about" class="page-section hidden content-rich">
+                <h2 class="section-label">서비스 소개</h2>
+                <div class="article-card">
+                    <p>Market Insight Pro는 개인 투자자들이 복잡한 시장 지표를 한눈에 파악하고, 자신만의 투자 전략을 세울 수 있도록 돕는 실시간 데이터 플랫폼입니다. 우리는 투명하고 정확한 정보를 제공하여 건전한 투자 생태계를 만드는 데 기여하고자 합니다.</p>
                 </div>
             </section>
 
-            <!-- SECTION 2: CORE ASSETS -->
-            <section class="dashboard-section">
-                <h2 class="section-label">SECTORS & CORE ASSETS</h2>
-                <div class="dashboard-grid sub-grid">
-                    <div class="chart-card mini" data-symbol="AMEX:LIT" data-id="lit">
-                        <div class="card-header"><h3 class="chart-title">배터리</h3><button class="fav-btn">★</button></div>
-                        <div id="chart_lit" class="chart-container small"></div>
-                    </div>
-                    <div class="chart-card mini" data-symbol="FX_IDC:USDKRW" data-id="fx">
-                        <div class="card-header"><h3 class="chart-title">환율</h3><button class="fav-btn">★</button></div>
-                        <div id="chart_fx" class="chart-container small"></div>
-                    </div>
-                    <div class="chart-card mini" data-symbol="TVC:GOLD" data-id="gold">
-                        <div class="card-header"><h3 class="chart-title">GOLD</h3><button class="fav-btn">★</button></div>
-                        <div id="chart_gold" class="chart-container small"></div>
-                    </div>
-                    <div class="chart-card mini" data-symbol="BINANCE:BTCUSDT" data-id="btc">
-                        <div class="card-header"><h3 class="chart-title">비트코인</h3><button class="fav-btn">★</button></div>
-                        <div id="chart_btc" class="chart-container small"></div>
-                    </div>
+            <!-- PRIVACY POLICY (AdSense Essential) -->
+            <section id="privacy" class="page-section hidden content-rich">
+                <h2 class="section-label">개인정보처리방침</h2>
+                <div class="article-card">
+                    <p>본 사이트는 구글 애드센스 광고를 송출하며, 이를 위해 쿠키를 사용할 수 있습니다. 사용자의 개인 식별 정보는 수집하지 않으며, 오직 브라우저의 편의 설정(즐겨찾기, 테마)을 위해 LocalStorage를 사용합니다.</p>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- 커뮤니티 댓글 섹션 -->
     <section class="comment-section container">
         <h2 class="section-label">COMMUNITY DISCUSS</h2>
         <div id="disqus_thread"></div>
     </section>
 
     <footer class="footer">
-        <p>Market Insight Pro © 2026. MZ Pastel Aesthetic. Powered by TradingView.</p>
+        <p>Market Insight Pro © 2026. 모든 시장 데이터는 TradingView에 의해 제공됩니다. 본 사이트의 정보는 투자 권유가 아니며, 최종 투자 판단은 본인에게 있습니다.</p>
     </footer>
 
     <script src="main.js"></script>
