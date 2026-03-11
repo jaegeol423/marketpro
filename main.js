@@ -1,5 +1,5 @@
 /**
- * MARKET INSIGHT PRO - AdSense Ready Mega Dashboard & Blog
+ * MARKET INSIGHT PRO - Final Multi-Page Portfolio Logic
  */
 
 let starredAssets = JSON.parse(localStorage.getItem('starredAssets')) || [];
@@ -9,62 +9,30 @@ let isSidebarOpen = localStorage.getItem('sidebarOpen') !== 'false';
 document.addEventListener('DOMContentLoaded', () => {
     initClock();
     initTheme();
-    initNavigation();
     initSidebar();
     initKoreanNewsWidget();
-    initAllCharts();
-    setupIntervalControls();
-    setupWatchlistControls();
+    
+    // 현재 페이지가 인덱스(대시보드)일 때만 차트 초기화
+    if (document.getElementById('dashboard')) {
+        initAllCharts();
+        setupIntervalControls();
+        setupWatchlistControls();
+    }
+    
     initDisqus();
 });
 
-/**
- * 1. 메뉴 네비게이션
- */
-function initNavigation() {
-    const navLinks = document.querySelectorAll('.nav-link');
-    const sections = document.querySelectorAll('.page-section');
-
-    function switchPage(targetId) {
-        sections.forEach(section => {
-            section.classList.toggle('hidden', section.id !== targetId);
-        });
-        navLinks.forEach(link => {
-            link.classList.toggle('active', link.getAttribute('href') === `#${targetId}`);
-        });
-        if (targetId === 'dashboard') {
-            window.dispatchEvent(new Event('resize'));
-        }
-        window.scrollTo(0, 0);
-    }
-
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = link.getAttribute('href').substring(1);
-            switchPage(targetId);
-            history.pushState(null, null, `#${targetId}`);
-        });
-    });
-
-    const hash = window.location.hash.substring(1);
-    if (hash && document.getElementById(hash)) {
-        switchPage(hash);
-    }
-}
-
-/**
- * 2. 테마 및 사이드바
- */
 function initTheme() {
     updateBodyClass();
     const themeBtn = document.getElementById('theme-btn');
-    themeBtn.addEventListener('click', () => {
-        currentTheme = currentTheme === 'pastel-dark' ? 'pure-dark' : 'pastel-dark';
-        updateBodyClass();
-        localStorage.setItem('theme', currentTheme);
-        initAllCharts();
-    });
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            currentTheme = currentTheme === 'pastel-dark' ? 'pure-dark' : 'pastel-dark';
+            updateBodyClass();
+            localStorage.setItem('theme', currentTheme);
+            if (document.getElementById('dashboard')) initAllCharts();
+        });
+    }
 }
 
 function updateBodyClass() {
@@ -73,17 +41,16 @@ function updateBodyClass() {
 
 function initSidebar() {
     const toggleBtn = document.getElementById('news-toggle-btn');
-    toggleBtn.addEventListener('click', () => {
-        isSidebarOpen = !isSidebarOpen;
-        updateBodyClass();
-        localStorage.setItem('sidebarOpen', isSidebarOpen);
-        setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
-    });
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            isSidebarOpen = !isSidebarOpen;
+            updateBodyClass();
+            localStorage.setItem('sidebarOpen', isSidebarOpen);
+            setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
+        });
+    }
 }
 
-/**
- * 3. 차트 렌더링 (메가 대시보드 복원)
- */
 function renderAdvancedPro(containerId, symbol, interval = "D") {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -159,9 +126,11 @@ function setupIntervalControls() {
 
 function initClock() {
     const timeDisplay = document.getElementById('market-time');
-    setInterval(() => {
-        if(timeDisplay) timeDisplay.innerHTML = new Date().toLocaleTimeString('ko-KR');
-    }, 1000);
+    if (timeDisplay) {
+        setInterval(() => {
+            timeDisplay.innerHTML = new Date().toLocaleTimeString('ko-KR');
+        }, 1000);
+    }
 }
 
 function initKoreanNewsWidget() {
@@ -203,6 +172,8 @@ function setupWatchlistControls() {
 }
 
 function initDisqus() {
+    const thread = document.getElementById('disqus_thread');
+    if (!thread) return;
     var d = document, s = d.createElement('script');
     s.src = 'https://test-vmewaufzig.disqus.com/embed.js';
     s.setAttribute('data-timestamp', +new Date());
