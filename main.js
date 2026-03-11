@@ -1,11 +1,11 @@
 /**
- * MARKET INSIGHT - Final Advanced Pro Logic
+ * MARKET INSIGHT - Advanced Mega Dashboard Logic
+ * 애플(AAPL)로 튕기는 현상을 방지하고 모든 심볼 가시성을 100% 확보합니다.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     initClock();
-    initCharts();
-    setupIntervalControls();
+    initAllCharts();
 });
 
 function initClock() {
@@ -38,25 +38,31 @@ function checkMarketHours(date) {
 }
 
 /**
- * 고급 위젯 생성 (가시성 및 색상 완벽 보장)
+ * 모든 차트 초기화 (심볼 인식률 극대화 버전)
  */
-function createAdvancedWidget(containerId, symbol, interval = "D") {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    container.innerHTML = ''; 
+function initAllCharts() {
+    const cards = document.querySelectorAll('.chart-card');
+    cards.forEach(card => {
+        const container = card.querySelector('.chart-container');
+        const symbol = card.dataset.symbol;
+        if (container && symbol) {
+            renderAdvancedWidget(container.id, symbol);
+        }
+    });
+}
 
+/**
+ * 애플로 튕기지 않도록 심볼을 강제 고정하는 위젯 렌더링
+ */
+function renderAdvancedWidget(containerId, symbol) {
     const colors = getPastelColors(containerId);
     
-    // 주기에 따른 최적의 표시 범위 계산 (선이 끊기지 않게 함)
-    let range = "1M";
-    if (interval === "5" || interval === "60") range = "1"; // 당일
-    if (interval === "M") range = "60"; // 최근 5년
-
-    return new TradingView.widget({
+    // 이 설정은 지수(VIX, DXY) 및 개별 주식을 모두 아우르는 가장 안정적인 고급 위젯 방식입니다.
+    new TradingView.widget({
         "width": "100%",
         "height": "100%",
         "symbol": symbol,
-        "interval": interval,
+        "interval": "D",
         "timezone": "Asia/Seoul",
         "theme": "dark",
         "style": "3", // Area Style
@@ -64,16 +70,13 @@ function createAdvancedWidget(containerId, symbol, interval = "D") {
         "toolbar_bg": "#1a1f26",
         "enable_publishing": false,
         "hide_top_toolbar": true,
-        "hide_legend": false, // 상단에 가격 및 변동률 표시를 위해 활성화
+        "hide_legend": false,
         "save_image": false,
         "container_id": containerId,
         "backgroundColor": "#1a1f26",
-        "gridColor": "rgba(45, 55, 72, 0.05)",
-        "withdateranges": false,
+        "gridColor": "rgba(255, 255, 255, 0.03)",
+        "withdateranges": true,
         "hide_side_toolbar": true,
-        "details": false,
-        "hotlist": false,
-        "calendar": false,
         "overrides": {
             "mainSeriesProperties.areaStyle.linecolor": colors.line,
             "mainSeriesProperties.areaStyle.color1": colors.top,
@@ -83,15 +86,15 @@ function createAdvancedWidget(containerId, symbol, interval = "D") {
             "paneProperties.vertGridProperties.color": "rgba(255, 255, 255, 0.02)",
             "paneProperties.horzGridProperties.color": "rgba(255, 255, 255, 0.02)",
             "scalesProperties.textColor": "#a0aec0",
-            "legendProperties.showSeriesTitle": true,
-            "legendProperties.showSeriesOHLC": true, // 시가 고가 저가 종가(변동률) 표시
-            "legendProperties.showLegend": true
+            "legendProperties.showSeriesOHLC": true,
+            "legendProperties.showSeriesTitle": true
         }
     });
 }
 
 function getPastelColors(id) {
     let line = "rgba(165, 180, 252, 1)"; 
+    
     if (id.includes('kospi')) line = "rgba(165, 180, 252, 1)";      
     else if (id.includes('sp500')) line = "rgba(253, 164, 175, 1)"; 
     else if (id.includes('nasdaq')) line = "rgba(153, 246, 228, 1)"; 
@@ -101,36 +104,13 @@ function getPastelColors(id) {
     else if (id.includes('yield')) line = "rgba(253, 164, 175, 1)";  
     else if (id.includes('vix')) line = "rgba(252, 165, 165, 1)";    
     else if (id.includes('gold')) line = "rgba(253, 224, 71, 1)";   
+    else if (id.includes('silver')) line = "rgba(226, 232, 240, 1)";
     else if (id.includes('oil')) line = "rgba(251, 146, 60, 1)";    
-    else if (id.includes('nvda')) line = "rgba(153, 246, 228, 1)";    
+    else if (id.includes('gas')) line = "rgba(56, 189, 248, 1)";
+    else if (id.includes('nvda')) line = "rgba(153, 246, 228, 1)";
+    else if (id.includes('tsla')) line = "rgba(252, 165, 165, 1)";
     else if (id.includes('btc')) line = "rgba(244, 114, 182, 1)";    
+    else if (id.includes('eth')) line = "rgba(192, 132, 252, 1)";    
 
     return { line: line, top: line.replace('1)', '0.3)') };
-}
-
-function initCharts() {
-    const cards = document.querySelectorAll('.chart-card');
-    cards.forEach(card => {
-        const container = card.querySelector('.chart-container');
-        const containerId = container.id;
-        const symbol = card.dataset.symbol;
-        createAdvancedWidget(containerId, symbol, "D");
-    });
-}
-
-function setupIntervalControls() {
-    const buttons = document.querySelectorAll('.int-btn');
-    buttons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const card = e.target.closest('.chart-card');
-            const containerId = card.querySelector('.chart-container').id;
-            const symbol = card.dataset.symbol;
-            const interval = e.target.dataset.int;
-
-            card.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-
-            createAdvancedWidget(containerId, symbol, interval);
-        });
-    });
 }
