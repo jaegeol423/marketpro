@@ -126,12 +126,19 @@ body {
 
 .lotto-display {
     display: flex;
-    justify-content: center;
-    gap: 15px;
+    flex-direction: column;
+    gap: 20px;
     min-height: 100px;
     align-items: center;
     margin-bottom: 40px;
+}
+
+.lotto-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .placeholder-text {

@@ -66,7 +66,7 @@ function createBallElement(num, isSmall = false) {
     return ball;
 }
 
-// --- 번호 추첨 실행 ----------------------------------------------------------
+// --- 번호 추첨 실행 (5게임) ----------------------------------------------------
 async function drawNumbers() {
     const birthdate = birthInput.value;
     const saju = analyzeSaju(birthdate);
@@ -85,26 +85,37 @@ async function drawNumbers() {
         sajuResult.style.display = 'none';
     }
     
-    const luckyNumbers = generateLottoNumbers(saju);
+    const allGames = [];
     
-    // 순차적으로 공 나타내기 애니메이션
-    for (let i = 0; i < luckyNumbers.length; i++) {
-        await new Promise(resolve => setTimeout(resolve, 400));
-        const ball = createBallElement(luckyNumbers[i]);
-        lottoDisplay.appendChild(ball);
+    // 5게임 생성
+    for (let g = 0; g < 5; g++) {
+        const row = document.createElement('div');
+        row.className = 'lotto-row';
+        lottoDisplay.appendChild(row);
+        
+        const luckyNumbers = generateLottoNumbers(saju);
+        allGames.push(luckyNumbers);
+        
+        // 순차적으로 공 나타내기 애니메이션 (속도 향상을 위해 딜레이 조절)
+        for (let i = 0; i < luckyNumbers.length; i++) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            const ball = createBallElement(luckyNumbers[i]);
+            row.appendChild(ball);
+        }
+        await new Promise(resolve => setTimeout(resolve, 200));
     }
     
-    saveToHistory(luckyNumbers, saju ? saju.name : '일반');
+    saveToHistory(allGames, saju ? saju.name : '일반');
     generateBtn.disabled = false;
 }
 
 // --- 히스토리 관리 -----------------------------------------------------------
-function saveToHistory(numbers, type) {
+function saveToHistory(allGames, type) {
     const history = JSON.parse(localStorage.getItem('lottoHistory') || '[]');
     const now = new Date();
     const dateStr = `${now.getMonth() + 1}.${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
     
-    const newEntry = { date: dateStr, numbers: numbers, type: type };
+    const newEntry = { date: dateStr, games: allGames, type: type };
     history.unshift(newEntry);
     
     const updatedHistory = history.slice(0, 10);
@@ -127,22 +138,39 @@ function renderHistory() {
     history.forEach(item => {
         const historyItem = document.createElement('div');
         historyItem.className = 'history-item';
+        historyItem.style.flexDirection = 'column';
+        historyItem.style.alignItems = 'flex-start';
         
         const infoDiv = document.createElement('div');
+        infoDiv.style.width = '100%';
+        infoDiv.style.display = 'flex';
+        infoDiv.style.justifyContent = 'space-between';
+        infoDiv.style.marginBottom = '10px';
         infoDiv.innerHTML = `
             <div class="history-date">${item.date}</div>
-            <div style="font-size: 0.75rem; color: var(--primary-color-start); margin-top: 4px;">[${item.type}]</div>
+            <div style="font-size: 0.75rem; color: var(--primary-color-start);">[${item.type}]</div>
         `;
+        historyItem.appendChild(infoDiv);
+
+        const gamesDiv = document.createElement('div');
+        gamesDiv.style.display = 'flex';
+        gamesDiv.style.flexDirection = 'column';
+        gamesDiv.style.gap = '8px';
+        gamesDiv.style.width = '100%';
+
+        // 게임이 단일 배열일 경우(이전 버전)와 배열의 배열일 경우(새 버전) 대응
+        const games = Array.isArray(item.games[0]) ? item.games : [item.numbers || item.games];
         
-        const ballsDiv = document.createElement('div');
-        ballsDiv.className = 'history-balls';
-        
-        item.numbers.forEach(num => {
-            ballsDiv.appendChild(createBallElement(num, true));
+        games.forEach(numbers => {
+            const ballsDiv = document.createElement('div');
+            ballsDiv.className = 'history-balls';
+            numbers.forEach(num => {
+                ballsDiv.appendChild(createBallElement(num, true));
+            });
+            gamesDiv.appendChild(ballsDiv);
         });
         
-        historyItem.appendChild(infoDiv);
-        historyItem.appendChild(ballsDiv);
+        historyItem.appendChild(gamesDiv);
         historyContainer.appendChild(historyItem);
     });
 }
