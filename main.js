@@ -146,3 +146,65 @@ window.addEventListener('resize', () => {
 // --- 초기화 ----------------------------------------------------------------
 updateLayout();
 animate();
+
+// --- 유튜브 큐레이션 (YouTube Curation) -----------------------------------------
+const curatedVideos = [
+    {
+        title: "[ENG] 전신 스트레칭 (Full Body Stretching)",
+        channel: "피지컬갤러리",
+        videoId: "MYNf_Xm_XEY"
+    },
+    {
+        title: "누워서 하는 아침 전신 스트레칭 (No equipment Morning Stretch)",
+        channel: "Thankyou BUBU",
+        videoId: "gMaB-fZfL8s"
+    },
+    {
+        title: "거북목 탈출! 굽은 어깨, 등 펴주는 스트레칭",
+        channel: "자세요정",
+        videoId: "27T_X98P2N0"
+    },
+    {
+        title: "골반 교정 스트레칭 10분 (Pelvic Correction)",
+        channel: "소미핏 Somifit",
+        videoId: "nQlb98uA-S0"
+    },
+    {
+        title: "자기 전 10분! 꿀잠 자는 수면 스트레칭",
+        channel: "에이핏 afit",
+        videoId: "m_Y7YvP4p0U"
+    },
+    {
+        title: "허리 통증 완화, 코어 강화 스트레칭",
+        channel: "요가소년 Yoga Boy",
+        videoId: "mXW0KclW0gU"
+    }
+];
+
+const youtubeContainer = document.getElementById('youtube-container');
+
+function renderYoutubeVideos() {
+    curatedVideos.forEach(video => {
+        const card = document.createElement('div');
+        card.className = 'video-card';
+        
+        card.innerHTML = `
+            <div class="thumbnail-wrapper">
+                <iframe 
+                    src="https://www.youtube.com/embed/${video.videoId}" 
+                    title="${video.title}" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <div class="video-info">
+                <h3 class="video-title">${video.title}</h3>
+                <p class="video-channel">${video.channel}</p>
+            </div>
+        `;
+        
+        youtubeContainer.appendChild(card);
+    });
+}
+
+renderYoutubeVideos();
