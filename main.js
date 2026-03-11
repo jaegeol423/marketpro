@@ -1,6 +1,5 @@
 /**
- * MARKET INSIGHT - Final MZ Pastel Dashboard
- * 모든 지표(삼성전자, VIX 등)의 가시성을 100% 보장합니다.
+ * MARKET INSIGHT - Logic & Charts
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -39,61 +38,46 @@ function checkMarketHours(date) {
 }
 
 /**
- * 모든 심볼을 지원하는 고급 위젯 생성 함수
+ * 모든 차트 가시성을 보장하는 렌더링 함수
  */
-function createWidget(containerId, symbol, interval = "D") {
+function renderChart(containerId, symbol, interval = "D") {
     const container = document.getElementById(containerId);
     if (!container) return;
     container.innerHTML = ''; 
 
     const colors = getPastelColors(containerId);
     
-    // TradingView Advanced Widget
-    // 이 방식은 삼성전자, VIX, DXY 등을 가장 안정적으로 지원합니다.
-    new TradingView.widget({
+    // 지수와 거시 지표 가시성을 위해 최적화된 설정
+    const config = {
+        "symbol": symbol,
         "width": "100%",
         "height": "100%",
-        "symbol": symbol,
-        "interval": interval,
-        "timezone": "Asia/Seoul",
-        "theme": "dark",
-        "style": "3", // Area Style
         "locale": "ko",
-        "toolbar_bg": "#1a1f26",
-        "enable_publishing": false,
-        "hide_top_toolbar": true,
-        "hide_legend": true,
-        "save_image": false,
-        "container_id": containerId,
-        "backgroundColor": "#1a1f26",
-        "gridColor": "rgba(45, 55, 72, 0.05)",
-        "withdateranges": false,
-        "hide_side_toolbar": true,
-        "details": false,
-        "hotlist": false,
-        "calendar": false,
-        "overrides": {
-            "mainSeriesProperties.areaStyle.linecolor": colors.line,
-            "mainSeriesProperties.areaStyle.color1": colors.top,
-            "mainSeriesProperties.areaStyle.color2": "rgba(26, 31, 38, 0)",
-            "mainSeriesProperties.areaStyle.linewidth": 3,
-            "paneProperties.background": "#1a1f26",
-            "paneProperties.vertGridProperties.color": "rgba(255, 255, 255, 0.03)",
-            "paneProperties.horzGridProperties.color": "rgba(255, 255, 255, 0.03)",
-            "scalesProperties.textColor": "#a0aec0"
-        }
-    });
+        "dateRange": interval === "W" ? "12M" : (interval === "5" || interval === "60") ? "1D" : "1M",
+        "colorTheme": "dark",
+        "trendLineColor": colors.line,
+        "underLineColor": colors.top,
+        "underLineBottomColor": "rgba(26, 31, 38, 0)",
+        "isTransparent": true,
+        "autosize": true
+    };
+
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js';
+    script.async = true;
+    script.innerHTML = JSON.stringify(config);
+    
+    container.appendChild(script);
 }
 
 function getPastelColors(id) {
-    let line = "rgba(165, 180, 252, 1)"; // Lavender Blue
+    let line = "rgba(165, 180, 252, 1)"; 
     
     if (id.includes('kospi')) line = "rgba(165, 180, 252, 1)";      
     else if (id.includes('sp500')) line = "rgba(253, 164, 175, 1)"; 
     else if (id.includes('nasdaq')) line = "rgba(153, 246, 228, 1)"; 
     else if (id.includes('sox')) line = "rgba(190, 242, 100, 1)";    
-    else if (id.includes('samsung')) line = "rgba(165, 180, 252, 1)"; 
-    else if (id.includes('k200')) line = "rgba(192, 132, 252, 1)";   
     
     else if (id.includes('fx')) line = "rgba(190, 242, 100, 1)";     
     else if (id.includes('dxy')) line = "rgba(165, 180, 252, 1)";    
@@ -107,7 +91,7 @@ function getPastelColors(id) {
 
     return {
         line: line,
-        top: line.replace('1)', '0.3)') // 30% Alpha for area
+        top: line.replace('1)', '0.3)') 
     };
 }
 
@@ -117,7 +101,7 @@ function initCharts() {
         const containerId = card.querySelector('.chart-container').id;
         const symbol = card.dataset.symbol;
         const interval = card.querySelector('.int-btn.active')?.dataset.int || "D";
-        createWidget(containerId, symbol, interval);
+        renderChart(containerId, symbol, interval);
     });
 }
 
@@ -133,7 +117,7 @@ function setupIntervalControls() {
             card.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
 
-            createWidget(containerId, symbol, interval);
+            renderChart(containerId, symbol, interval);
         });
     });
 }

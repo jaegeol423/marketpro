@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MARKET INSIGHT - Professional Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 </head>
 <body>
     <header class="header">
@@ -20,11 +19,11 @@
     </header>
 
     <main class="container">
-        <!-- SECTION 1: MARKET CORE (Indices & Semis) -->
+        <!-- SECTION 1: MARKET CORE (Indices) -->
         <section class="dashboard-section">
-            <h2 class="section-label">MARKET CORE (지수 및 핵심 주식)</h2>
+            <h2 class="section-label">MARKET CORE (핵심 지수)</h2>
             <div class="dashboard-grid main-grid">
-                <div class="chart-card" data-symbol="AMEX:EWY" data-title="KOSPI">
+                <div class="chart-card" data-symbol="AMEX:EWY" data-title="KOSPI (EWY)">
                     <div class="card-header">
                         <h3 class="chart-title">KOSPI (한국)</h3>
                         <div class="interval-selector">
@@ -68,28 +67,6 @@
                     </div>
                     <div id="chart_sox" class="chart-container"></div>
                 </div>
-                <div class="chart-card" data-symbol="KRX:005930" data-title="SAMSUNG ELECT.">
-                    <div class="card-header">
-                        <h3 class="chart-title">삼성전자</h3>
-                        <div class="interval-selector">
-                            <button class="int-btn" data-int="5">5m</button>
-                            <button class="int-btn active" data-int="D">D</button>
-                            <button class="int-btn" data-int="W">W</button>
-                        </div>
-                    </div>
-                    <div id="chart_samsung" class="chart-container"></div>
-                </div>
-                <div class="chart-card" data-symbol="KRX:KOSPI200" data-title="KOSPI 200">
-                    <div class="card-header">
-                        <h3 class="chart-title">KOSPI 200</h3>
-                        <div class="interval-selector">
-                            <button class="int-btn" data-int="5">5m</button>
-                            <button class="int-btn active" data-int="D">D</button>
-                            <button class="int-btn" data-int="W">W</button>
-                        </div>
-                    </div>
-                    <div id="chart_k200" class="chart-container"></div>
-                </div>
             </div>
         </section>
 
@@ -98,27 +75,19 @@
             <h2 class="section-label">MACRO & SENTIMENT (환율 · 금리 · 심리)</h2>
             <div class="dashboard-grid sub-grid">
                 <div class="chart-card mini" data-symbol="FX_IDC:USDKRW" data-title="USD/KRW">
-                    <div class="card-header">
-                        <h3 class="chart-title">USD / KRW (환율)</h3>
-                    </div>
+                    <div class="card-header"><h3 class="chart-title">USD / KRW (환율)</h3></div>
                     <div id="chart_fx" class="chart-container small"></div>
                 </div>
                 <div class="chart-card mini" data-symbol="TVC:DXY" data-title="DOLLAR INDEX">
-                    <div class="card-header">
-                        <h3 class="chart-title">DXY (달러 인덱스)</h3>
-                    </div>
+                    <div class="card-header"><h3 class="chart-title">DXY (달러 인덱스)</h3></div>
                     <div id="chart_dxy" class="chart-container small"></div>
                 </div>
                 <div class="chart-card mini" data-symbol="TVC:US10Y" data-title="US 10Y YIELD">
-                    <div class="card-header">
-                        <h3 class="chart-title">미국채 10년 금리</h3>
-                    </div>
+                    <div class="card-header"><h3 class="chart-title">미국채 10년 금리</h3></div>
                     <div id="chart_yield" class="chart-container small"></div>
                 </div>
                 <div class="chart-card mini" data-symbol="TVC:VIX" data-title="VIX INDEX">
-                    <div class="card-header">
-                        <h3 class="chart-title">VIX (공포 지수)</h3>
-                    </div>
+                    <div class="card-header"><h3 class="chart-title">VIX (공포 지수)</h3></div>
                     <div id="chart_vix" class="chart-container small"></div>
                 </div>
             </div>
