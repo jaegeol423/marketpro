@@ -64,7 +64,7 @@ body {
 }
 
 .user-info {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     text-align: left;
 }
 
@@ -95,14 +95,75 @@ body {
     box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
 }
 
-.saju-result {
-    margin-bottom: 40px;
-    padding: 25px;
+/* --- Analysis Option Switch --- */
+.analysis-option {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px 20px;
+    border-radius: 15px;
+}
+
+.switch-label {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch-label input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #333;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px; width: 18px;
+    left: 3px; bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background: linear-gradient(45deg, var(--primary-color-start), var(--primary-color-end));
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.option-text {
+    font-size: 0.95rem;
+    color: #ccc;
+}
+
+.saju-result, .analysis-result {
+    margin-bottom: 30px;
+    padding: 20px;
     background: rgba(212, 175, 55, 0.05);
-    border-radius: 20px;
+    border-radius: 15px;
     border-left: 4px solid var(--primary-color-start);
     text-align: left;
     animation: fadeIn 0.8s ease;
+}
+
+.analysis-result {
+    border-left-color: #4CAF50; /* Greenish for statistics */
+    background: rgba(76, 175, 80, 0.05);
 }
 
 @keyframes fadeIn {
@@ -110,15 +171,17 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-.saju-title {
-    font-size: 1.2rem;
+.saju-title, .analysis-title {
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--primary-color-end);
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
 }
 
-.saju-desc {
-    font-size: 1rem;
+.analysis-title { color: #81C784; }
+
+.saju-desc, .analysis-desc {
+    font-size: 0.95rem;
     line-height: 1.6;
     color: #ccc;
     margin: 0;
@@ -177,6 +240,12 @@ body {
 .ball.range-3 { background: radial-gradient(circle at 30% 30%, #ff9494, var(--ball-red)); }
 .ball.range-4 { background: radial-gradient(circle at 30% 30%, #cccccc, var(--ball-gray)); }
 .ball.range-5 { background: radial-gradient(circle at 30% 30%, #c4e463, var(--ball-green)); }
+
+/* Key Number Special Glow */
+.ball.key-number {
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.8), inset -5px -5px 15px rgba(0,0,0,0.3);
+    border: 2px solid #fff;
+}
 
 .main-btn {
     background: linear-gradient(45deg, var(--primary-color-start), var(--primary-color-end));

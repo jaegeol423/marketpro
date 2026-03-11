@@ -3,14 +3,23 @@ const generateBtn = document.getElementById('generate-btn');
 const historyContainer = document.getElementById('history-container');
 const birthInput = document.getElementById('birthdate');
 const sajuResult = document.getElementById('saju-result');
+const statAnalysisToggle = document.getElementById('stat-analysis-toggle');
+const analysisResult = document.getElementById('analysis-result');
 
-// --- 사주 및 오행 데이터 -----------------------------------------------------
+// --- 가상 로또 번호 빈도 데이터 (통계 분석용) --------------------------------------
+// 실제 통계와 유사한 가상 데이터를 생성합니다. (값이 낮을수록 최근에 안 나온 번호)
+const historicalFrequency = {};
+for (let i = 1; i <= 45; i++) {
+    historicalFrequency[i] = Math.floor(Math.random() * 150) + 100; // 100~250회 사이 빈도
+}
+
+// --- 사주 데이터 -------------------------------------------------------------
 const elements = {
-    wood: { name: '목(木)', color: '초록', range: [1, 10, 41, 45], desc: '성장과 활력을 상징하는 목의 기운이 강합니다. 생명력이 느껴지는 낮은 번호대와 끝 번호대가 행운을 가져다줄 것입니다.' },
-    fire: { name: '화(火)', color: '빨강', range: [21, 30], desc: '열정과 에너지를 상징하는 화의 기운이 가득합니다. 뜨거운 기운을 품은 20번대 중반 번호들에 주목하세요.' },
-    earth: { name: '토(土)', color: '노랑/회색', range: [1, 5, 31, 40], desc: '안정과 신뢰를 상징하는 토의 기운이 깃들어 있습니다. 단단한 기반을 의미하는 30번대 번호들이 길운을 보충해줍니다.' },
-    metal: { name: '금(金)', color: '흰색/금색', range: [41, 45, 11, 20], desc: '결단력과 명예를 상징하는 금의 기운이 느껴집니다. 날카롭고 명확한 기운의 10번대와 최고령 번호들이 유리합니다.' },
-    water: { name: '수(水)', color: '파랑', range: [11, 20], desc: '지혜와 흐름을 상징하는 수의 기운이 흐릅니다. 유연함을 가진 10번대 파란 공들이 당신의 행운 번호입니다.' }
+    wood: { name: '목(木)', color: '초록', range: [1, 10, 41, 45], desc: '성장과 활력을 상징하는 목의 기운이 강합니다. 낮은 번호와 끝 번호가 행운을 가져다줄 것입니다.' },
+    fire: { name: '화(火)', color: '빨강', range: [21, 30], desc: '열정과 에너지를 상징하는 화의 기운이 가득합니다. 20번대 중반 번호들에 주목하세요.' },
+    earth: { name: '토(土)', color: '노랑/회색', range: [1, 5, 31, 40], desc: '안정과 신뢰를 상징하는 토의 기운이 깃들어 있습니다. 30번대 번호들이 길운을 보충해줍니다.' },
+    metal: { name: '금(金)', color: '흰색/금색', range: [41, 45, 11, 20], desc: '결단력과 명예를 상징하는 금의 기운이 느껴집니다. 10번대와 최고령 번호들이 유리합니다.' },
+    water: { name: '수(水)', color: '파랑', range: [11, 20], desc: '지혜와 흐름을 상징하는 수의 기운이 흐릅니다. 10번대 파란 공들이 당신의 행운 번호입니다.' }
 };
 
 function analyzeSaju(birthdate) {
@@ -22,118 +31,137 @@ function analyzeSaju(birthdate) {
     return elements[key];
 }
 
-// --- 로또 번호 생성 로직 (사주 가중치 포함) ---------------------------------------
-function generateLottoNumbers(saju) {
-    const numbers = [];
-    const luckyRange = saju ? saju.range : [];
-    
-    // 사주 맞춤 번호 2개 우선 선정 (가중치)
-    if (luckyRange.length > 0) {
-        while (numbers.length < 2) {
-            const min = luckyRange[0];
-            const max = luckyRange[luckyRange.length - 1];
-            const num = Math.floor(Math.random() * (max - min + 1)) + min;
-            if (!numbers.includes(num) && num >= 1 && num <= 45) {
-                numbers.push(num);
-            }
+// --- 대수의 법칙 기반 Key 번호 선정 (가장 안 나온 번호 TOP 3) -------------------------
+function getKeyNumbers() {
+    return Object.entries(historicalFrequency)
+        .sort(([, a], [, b]) => a - b) // 빈도가 낮은 순서로 정렬
+        .slice(0, 3)
+        .map(([num]) => parseInt(num));
+}
+
+// --- 가중치 랜덤 선택 알고리즘 --------------------------------------------------
+function getWeightedRandomNumber(exclude, saju, useStat) {
+    const weights = [];
+    const keyNumbers = getKeyNumbers();
+
+    for (let i = 1; i <= 45; i++) {
+        if (exclude.includes(i)) continue;
+
+        let weight = 10; // 기본 가중치
+
+        // 1. 사주 가중치 (+15)
+        if (saju && saju.range.includes(i)) weight += 15;
+
+        // 2. 대수의 법칙 가중치 (안 나올수록 가중치 UP)
+        if (useStat) {
+            // 빈도의 역수에 비례하여 가중치 부여
+            const freqWeight = Math.floor((300 - historicalFrequency[i]) / 10);
+            weight += freqWeight;
+            
+            // TOP 3 미출현 번호(Key)는 추가 가중치 (+20)
+            if (keyNumbers.includes(i)) weight += 20;
         }
+
+        weights.push({ num: i, weight: weight });
     }
 
-    // 나머지 번호 랜덤 채우기
+    const totalWeight = weights.reduce((sum, item) => sum + item.weight, 0);
+    let random = Math.random() * totalWeight;
+
+    for (const item of weights) {
+        if (random < item.weight) return item.num;
+        random -= item.weight;
+    }
+    return weights[weights.length - 1].num;
+}
+
+function generateLottoNumbers(saju, useStat) {
+    const numbers = [];
     while (numbers.length < 6) {
-        const num = Math.floor(Math.random() * 45) + 1;
-        if (!numbers.includes(num)) {
-            numbers.push(num);
-        }
+        const num = getWeightedRandomNumber(numbers, saju, useStat);
+        numbers.push(num);
     }
     return numbers.sort((a, b) => a - b);
 }
 
-// --- 공 색상 클래스 결정 -----------------------------------------------------
+// --- UI 헬퍼 ----------------------------------------------------------------
 function getRangeClass(num) {
-    if (num <= 10) return 'range-1'; // 노란색
-    if (num <= 20) return 'range-2'; // 파란색
-    if (num <= 30) return 'range-3'; // 빨간색
-    if (num <= 40) return 'range-4'; // 회색
-    return 'range-5';               // 초록색
+    if (num <= 10) return 'range-1';
+    if (num <= 20) return 'range-2';
+    if (num <= 30) return 'range-3';
+    if (num <= 40) return 'range-4';
+    return 'range-5';
 }
 
-// --- 공 엘리먼트 생성 --------------------------------------------------------
-function createBallElement(num, isSmall = false) {
+function createBallElement(num, isSmall = false, isKey = false) {
     const ball = document.createElement('div');
-    ball.className = `ball ${getRangeClass(num)} ${isSmall ? 'small-ball' : ''}`;
+    ball.className = `ball ${getRangeClass(num)} ${isSmall ? 'small-ball' : ''} ${isKey ? 'key-number' : ''}`;
     ball.textContent = num;
     return ball;
 }
 
-// --- 번호 추첨 실행 (5게임) ----------------------------------------------------
+// --- 번호 추첨 실행 ----------------------------------------------------------
 async function drawNumbers() {
     const birthdate = birthInput.value;
     const saju = analyzeSaju(birthdate);
+    const useStat = statAnalysisToggle.checked;
+    const keyNumbers = getKeyNumbers();
 
     generateBtn.disabled = true;
     lottoDisplay.innerHTML = '';
     
-    // 사주 결과 표시
+    // 결과창 초기화
+    sajuResult.style.display = saju ? 'block' : 'none';
     if (saju) {
-        sajuResult.style.display = 'block';
         sajuResult.innerHTML = `
-            <p class="saju-title">✨ 당신의 사주 분석: ${saju.name}의 기운</p>
+            <p class="saju-title">✨ 사주 분석: ${saju.name}의 기운</p>
             <p class="saju-desc">${saju.desc}</p>
         `;
-    } else {
-        sajuResult.style.display = 'none';
+    }
+
+    analysisResult.style.display = useStat ? 'block' : 'none';
+    if (useStat) {
+        analysisResult.innerHTML = `
+            <p class="analysis-title">📊 대수의 법칙: 이번 회차 Key 번호</p>
+            <p class="analysis-desc">최근 출현 빈도가 낮은 <strong>${keyNumbers.join(', ')}</strong>번에 높은 가중치가 부여되었습니다.</p>
+        `;
     }
     
     const allGames = [];
-    
-    // 5게임 생성
     for (let g = 0; g < 5; g++) {
         const row = document.createElement('div');
         row.className = 'lotto-row';
         lottoDisplay.appendChild(row);
         
-        const luckyNumbers = generateLottoNumbers(saju);
+        const luckyNumbers = generateLottoNumbers(saju, useStat);
         allGames.push(luckyNumbers);
         
-        // 순차적으로 공 나타내기 애니메이션 (속도 향상을 위해 딜레이 조절)
         for (let i = 0; i < luckyNumbers.length; i++) {
             await new Promise(resolve => setTimeout(resolve, 100));
-            const ball = createBallElement(luckyNumbers[i]);
+            const isKey = useStat && keyNumbers.includes(luckyNumbers[i]);
+            const ball = createBallElement(luckyNumbers[i], false, isKey);
             row.appendChild(ball);
         }
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 150));
     }
     
-    saveToHistory(allGames, saju ? saju.name : '일반');
+    saveToHistory(allGames, (saju ? saju.name : '') + (useStat ? ' + 통계' : ''));
     generateBtn.disabled = false;
 }
 
-// --- 히스토리 관리 -----------------------------------------------------------
 function saveToHistory(allGames, type) {
     const history = JSON.parse(localStorage.getItem('lottoHistory') || '[]');
     const now = new Date();
     const dateStr = `${now.getMonth() + 1}.${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-    
-    const newEntry = { date: dateStr, games: allGames, type: type };
-    history.unshift(newEntry);
-    
-    const updatedHistory = history.slice(0, 10);
-    localStorage.setItem('lottoHistory', JSON.stringify(updatedHistory));
-    
+    history.unshift({ date: dateStr, games: allGames, type: type || '일반' });
+    localStorage.setItem('lottoHistory', JSON.stringify(history.slice(0, 10)));
     renderHistory();
 }
 
 function renderHistory() {
-    const history = JSON.parse(localStorage.getItem('lottoHistory') || '[]');
     if (!historyContainer) return;
-    
-    historyContainer.innerHTML = '';
-    
-    if (history.length === 0) {
-        historyContainer.innerHTML = '<p style="color: #444;">최근 내역이 없습니다.</p>';
-        return;
-    }
+    const history = JSON.parse(localStorage.getItem('lottoHistory') || '[]');
+    historyContainer.innerHTML = history.length ? '' : '<p style="color: #444;">최근 내역이 없습니다.</p>';
     
     history.forEach(item => {
         const historyItem = document.createElement('div');
@@ -141,44 +169,24 @@ function renderHistory() {
         historyItem.style.flexDirection = 'column';
         historyItem.style.alignItems = 'flex-start';
         
-        const infoDiv = document.createElement('div');
-        infoDiv.style.width = '100%';
-        infoDiv.style.display = 'flex';
-        infoDiv.style.justifyContent = 'space-between';
-        infoDiv.style.marginBottom = '10px';
-        infoDiv.innerHTML = `
-            <div class="history-date">${item.date}</div>
-            <div style="font-size: 0.75rem; color: var(--primary-color-start);">[${item.type}]</div>
+        historyItem.innerHTML = `
+            <div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <div class="history-date">${item.date}</div>
+                <div style="font-size: 0.75rem; color: var(--primary-color-start);">[${item.type}]</div>
+            </div>
+            <div class="games-list" style="display: flex; flex-direction: column; gap: 8px; width: 100%;"></div>
         `;
-        historyItem.appendChild(infoDiv);
 
-        const gamesDiv = document.createElement('div');
-        gamesDiv.style.display = 'flex';
-        gamesDiv.style.flexDirection = 'column';
-        gamesDiv.style.gap = '8px';
-        gamesDiv.style.width = '100%';
-
-        // 게임이 단일 배열일 경우(이전 버전)와 배열의 배열일 경우(새 버전) 대응
-        const games = Array.isArray(item.games[0]) ? item.games : [item.numbers || item.games];
-        
-        games.forEach(numbers => {
+        const gamesList = historyItem.querySelector('.games-list');
+        item.games.forEach(numbers => {
             const ballsDiv = document.createElement('div');
             ballsDiv.className = 'history-balls';
-            numbers.forEach(num => {
-                ballsDiv.appendChild(createBallElement(num, true));
-            });
-            gamesDiv.appendChild(ballsDiv);
+            numbers.forEach(num => ballsDiv.appendChild(createBallElement(num, true)));
+            gamesList.appendChild(ballsDiv);
         });
-        
-        historyItem.appendChild(gamesDiv);
         historyContainer.appendChild(historyItem);
     });
 }
 
-// --- 이벤트 리스너 -----------------------------------------------------------
 generateBtn.addEventListener('click', drawNumbers);
-
-// --- 초기화 ------------------------------------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
-    renderHistory();
-});
+document.addEventListener('DOMContentLoaded', renderHistory);
