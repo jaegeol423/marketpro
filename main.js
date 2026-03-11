@@ -26,11 +26,11 @@ function initClock() {
         timeDisplay.innerHTML = `${statusText} | ${hours}:${minutes}:${seconds}`;
         
         if (isMarketOpen) {
-            dot.style.color = '#bef264'; // Mint/Lime
+            dot.style.color = '#bef264';
             dot.style.backgroundColor = '#bef264';
             dot.classList.add('pulse');
         } else {
-            dot.style.color = '#fca5a5'; // Rose
+            dot.style.color = '#fca5a5';
             dot.style.backgroundColor = '#fca5a5';
             dot.classList.remove('pulse');
         }
@@ -47,7 +47,7 @@ function checkMarketHours(date) {
 }
 
 /**
- * 개별 차트 생성 함수 (파스텔 테마 적용)
+ * 개별 차트 생성 함수 (강력한 색상 오버라이드 적용)
  */
 function createWidget(containerId, symbol, interval = "D") {
     document.getElementById(containerId).innerHTML = '';
@@ -61,7 +61,7 @@ function createWidget(containerId, symbol, interval = "D") {
         "interval": interval,
         "timezone": "Asia/Seoul",
         "theme": "dark",
-        "style": "3", // Area Chart
+        "style": "3", // Area Style
         "locale": "ko",
         "toolbar_bg": "#1a1f26",
         "enable_publishing": false,
@@ -69,19 +69,31 @@ function createWidget(containerId, symbol, interval = "D") {
         "hide_legend": true,
         "save_image": false,
         "container_id": containerId,
-        "lineColor": colors.line,
-        "topColor": colors.top,
-        "bottomColor": "rgba(26, 31, 38, 0)",
         "backgroundColor": "#1a1f26",
-        "gridColor": "rgba(45, 55, 72, 0.2)"
+        "gridColor": "rgba(45, 55, 72, 0.1)",
+        "withdateranges": false,
+        "hide_side_toolbar": true,
+        "details": false,
+        "hotlist": false,
+        "calendar": false,
+        // 이 부분이 핵심입니다: 그래프의 내부 색상을 강제로 덮어씌웁니다.
+        "overrides": {
+            "mainSeriesProperties.style": 3,
+            "mainSeriesProperties.areaStyle.linecolor": colors.line,
+            "mainSeriesProperties.areaStyle.color1": colors.top,
+            "mainSeriesProperties.areaStyle.color2": "rgba(26, 31, 38, 0)",
+            "mainSeriesProperties.areaStyle.linewidth": 3,
+            "paneProperties.background": "#1a1f26",
+            "paneProperties.vertGridProperties.color": "rgba(45, 55, 72, 0.05)",
+            "paneProperties.horzGridProperties.color": "rgba(45, 55, 72, 0.05)",
+            "scalesProperties.textColor": "#a0aec0",
+            "scalesProperties.lineColor": "rgba(45, 55, 72, 0.3)"
+        }
     });
 }
 
-/**
- * MZ 파스텔 색상 추출
- */
 function getPastelColors(id) {
-    let line = "#a5b4fc"; // Default Lavender
+    let line = "#a5b4fc"; 
     
     if (id.includes('kospi')) line = "#a5b4fc";      // Lavender Blue
     else if (id.includes('sp500')) line = "#fda4af"; // Soft Peach
@@ -92,13 +104,10 @@ function getPastelColors(id) {
 
     return {
         line: line,
-        top: line + "33" // 20% 투명도
+        top: line + "4D" // 30% Alpha
     };
 }
 
-/**
- * 초기 차트 로드
- */
 function initCharts() {
     const cards = document.querySelectorAll('.chart-card');
     cards.forEach(card => {
@@ -108,12 +117,8 @@ function initCharts() {
     });
 }
 
-/**
- * 주기 컨트롤 설정
- */
 function setupIntervalControls() {
     const buttons = document.querySelectorAll('.int-btn');
-    
     buttons.forEach(btn => {
         btn.addEventListener('click', (e) => {
             const card = e.target.closest('.chart-card');
