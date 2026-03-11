@@ -1,5 +1,5 @@
 /**
- * MARKET INSIGHT PRO - AdSense Ready High-Quality Portal
+ * MARKET INSIGHT PRO - AdSense Ready Mega Dashboard & Blog
  */
 
 let starredAssets = JSON.parse(localStorage.getItem('starredAssets')) || [];
@@ -9,7 +9,7 @@ let isSidebarOpen = localStorage.getItem('sidebarOpen') !== 'false';
 document.addEventListener('DOMContentLoaded', () => {
     initClock();
     initTheme();
-    initNavigation(); // 메뉴 네비게이션 추가
+    initNavigation();
     initSidebar();
     initKoreanNewsWidget();
     initAllCharts();
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * 1. 메뉴 네비게이션 (AdSense Navigability)
+ * 1. 메뉴 네비게이션
  */
 function initNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
@@ -32,7 +32,6 @@ function initNavigation() {
         navLinks.forEach(link => {
             link.classList.toggle('active', link.getAttribute('href') === `#${targetId}`);
         });
-        // 대시보드로 돌아올 때 차트 크기 재조정
         if (targetId === 'dashboard') {
             window.dispatchEvent(new Event('resize'));
         }
@@ -48,7 +47,6 @@ function initNavigation() {
         });
     });
 
-    // 초기 해시 체크
     const hash = window.location.hash.substring(1);
     if (hash && document.getElementById(hash)) {
         switchPage(hash);
@@ -56,7 +54,7 @@ function initNavigation() {
 }
 
 /**
- * 2. 테마 및 사이드바 (UX Optimization)
+ * 2. 테마 및 사이드바
  */
 function initTheme() {
     updateBodyClass();
@@ -65,7 +63,7 @@ function initTheme() {
         currentTheme = currentTheme === 'pastel-dark' ? 'pure-dark' : 'pastel-dark';
         updateBodyClass();
         localStorage.setItem('theme', currentTheme);
-        initAllCharts(); // 배경색 동기화
+        initAllCharts();
     });
 }
 
@@ -84,7 +82,7 @@ function initSidebar() {
 }
 
 /**
- * 3. 차트 렌더링 (Visual Quality)
+ * 3. 차트 렌더링 (메가 대시보드 복원)
  */
 function renderAdvancedPro(containerId, symbol, interval = "D") {
     const container = document.getElementById(containerId);
@@ -125,7 +123,40 @@ function renderAdvancedPro(containerId, symbol, interval = "D") {
     });
 }
 
-// --- 기타 필수 함수 (기존 로직 유지) ---
+function getPastelColors(id) {
+    let line = "rgba(165, 180, 252, 1)"; 
+    if (id.includes('kospi')) line = "rgba(165, 180, 252, 1)";      
+    else if (id.includes('sp500')) line = "rgba(253, 164, 175, 1)"; 
+    else if (id.includes('nasdaq')) line = "rgba(153, 246, 228, 1)"; 
+    else if (id.includes('sox')) line = "rgba(190, 242, 100, 1)";    
+    else if (id.includes('gold')) line = "rgba(253, 224, 71, 1)";   
+    else if (id.includes('silver')) line = "rgba(226, 232, 240, 1)";
+    else if (id.includes('btc')) line = "rgba(244, 114, 182, 1)";    
+    else if (id.includes('eth')) line = "rgba(192, 132, 252, 1)";    
+    else if (id.includes('nvda')) line = "rgba(153, 246, 228, 1)";
+    else if (id.includes('fx')) line = "rgba(190, 242, 100, 1)";
+    return { line: line, top: line.replace('1)', '0.2)') };
+}
+
+function initAllCharts() {
+    document.querySelectorAll('.chart-card').forEach(card => {
+        const container = card.querySelector('.chart-container');
+        if (container) renderAdvancedPro(container.id, card.dataset.symbol, "D");
+    });
+}
+
+function setupIntervalControls() {
+    document.querySelectorAll('.int-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const card = e.target.closest('.chart-card');
+            const interval = e.target.dataset.int;
+            card.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            renderAdvancedPro(card.querySelector('.chart-container').id, card.dataset.symbol, interval);
+        });
+    });
+}
+
 function initClock() {
     const timeDisplay = document.getElementById('market-time');
     setInterval(() => {
@@ -136,6 +167,7 @@ function initClock() {
 function initKoreanNewsWidget() {
     const container = document.getElementById('tradingview-news');
     if (!container) return;
+    container.innerHTML = '';
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js';
@@ -168,32 +200,6 @@ function setupWatchlistControls() {
         });
     });
     updateUI();
-}
-
-function getPastelColors(id) {
-    let line = "rgba(165, 180, 252, 1)"; 
-    if (id.includes('kospi')) line = "rgba(165, 180, 252, 1)";      
-    else if (id.includes('nasdaq')) line = "rgba(153, 246, 228, 1)"; 
-    return { line: line, top: line.replace('1)', '0.2)') };
-}
-
-function initAllCharts() {
-    document.querySelectorAll('.chart-card').forEach(card => {
-        const container = card.querySelector('.chart-container');
-        if (container) renderAdvancedPro(container.id, card.dataset.symbol, "D");
-    });
-}
-
-function setupIntervalControls() {
-    document.querySelectorAll('.int-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const card = e.target.closest('.chart-card');
-            const interval = e.target.dataset.int;
-            card.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            renderAdvancedPro(card.querySelector('.chart-container').id, card.dataset.symbol, interval);
-        });
-    });
 }
 
 function initDisqus() {
