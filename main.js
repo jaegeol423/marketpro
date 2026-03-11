@@ -26,11 +26,9 @@ function initClock() {
         timeDisplay.innerHTML = `${statusText} | ${hours}:${minutes}:${seconds}`;
         
         if (isMarketOpen) {
-            dot.style.color = '#bef264';
             dot.style.backgroundColor = '#bef264';
             dot.classList.add('pulse');
         } else {
-            dot.style.color = '#fca5a5';
             dot.style.backgroundColor = '#fca5a5';
             dot.classList.remove('pulse');
         }
@@ -47,54 +45,42 @@ function checkMarketHours(date) {
 }
 
 /**
- * 개별 차트 생성 함수 (강력한 색상 오버라이드 적용)
+ * 차트 생성 함수 (스크립트 주입 방식)
+ * 이 방식이 색상 변경과 가시성에 가장 확실합니다.
  */
-function createWidget(containerId, symbol, interval = "D") {
-    document.getElementById(containerId).innerHTML = '';
-    
+function renderChart(containerId, symbol, interval = "D") {
+    const container = document.getElementById(containerId);
+    container.innerHTML = ''; // 기존 차트 제거
+
     const colors = getPastelColors(containerId);
     
-    return new TradingView.widget({
+    // TradingView 위젯 설정 생성
+    const config = {
+        "symbol": symbol,
         "width": "100%",
         "height": "100%",
-        "symbol": symbol,
-        "interval": interval,
-        "timezone": "Asia/Seoul",
-        "theme": "dark",
-        "style": "3", // Area Style
         "locale": "ko",
-        "toolbar_bg": "#1a1f26",
-        "enable_publishing": false,
-        "hide_top_toolbar": true,
-        "hide_legend": true,
-        "save_image": false,
-        "container_id": containerId,
-        "backgroundColor": "#1a1f26",
-        "gridColor": "rgba(45, 55, 72, 0.1)",
-        "withdateranges": false,
-        "hide_side_toolbar": true,
-        "details": false,
-        "hotlist": false,
-        "calendar": false,
-        // 이 부분이 핵심입니다: 그래프의 내부 색상을 강제로 덮어씌웁니다.
-        "overrides": {
-            "mainSeriesProperties.style": 3,
-            "mainSeriesProperties.areaStyle.linecolor": colors.line,
-            "mainSeriesProperties.areaStyle.color1": colors.top,
-            "mainSeriesProperties.areaStyle.color2": "rgba(26, 31, 38, 0)",
-            "mainSeriesProperties.areaStyle.linewidth": 3,
-            "paneProperties.background": "#1a1f26",
-            "paneProperties.vertGridProperties.color": "rgba(45, 55, 72, 0.05)",
-            "paneProperties.horzGridProperties.color": "rgba(45, 55, 72, 0.05)",
-            "scalesProperties.textColor": "#a0aec0",
-            "scalesProperties.lineColor": "rgba(45, 55, 72, 0.3)"
-        }
-    });
+        "dateRange": interval === "D" ? "1M" : interval === "W" ? "12M" : "1D",
+        "colorTheme": "dark",
+        "trendLineColor": colors.line,
+        "underLineColor": colors.top,
+        "underLineBottomColor": "rgba(26, 31, 38, 0)",
+        "isTransparent": true,
+        "autosize": true,
+        "largeChartUrl": ""
+    };
+
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js';
+    script.async = true;
+    script.innerHTML = JSON.stringify(config);
+    
+    container.appendChild(script);
 }
 
 function getPastelColors(id) {
     let line = "#a5b4fc"; 
-    
     if (id.includes('kospi')) line = "#a5b4fc";      // Lavender Blue
     else if (id.includes('sp500')) line = "#fda4af"; // Soft Peach
     else if (id.includes('nasdaq')) line = "#99f6e4"; // Mint
@@ -104,7 +90,7 @@ function getPastelColors(id) {
 
     return {
         line: line,
-        top: line + "4D" // 30% Alpha
+        top: line + "33" // 20% Alpha
     };
 }
 
@@ -113,7 +99,7 @@ function initCharts() {
     cards.forEach(card => {
         const containerId = card.querySelector('.chart-container').id;
         const symbol = card.dataset.symbol;
-        createWidget(containerId, symbol, "D");
+        renderChart(containerId, symbol, "D");
     });
 }
 
@@ -129,7 +115,7 @@ function setupIntervalControls() {
             card.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
 
-            createWidget(containerId, symbol, interval);
+            renderChart(containerId, symbol, interval);
         });
     });
 }
