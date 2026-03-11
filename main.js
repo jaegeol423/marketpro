@@ -5,6 +5,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     initClock();
     initCharts();
+    setupIntervalControls();
 });
 
 /**
@@ -41,13 +42,17 @@ function checkMarketHours(date) {
 }
 
 /**
- * TradingView 차트 초기화
+ * 개별 차트 생성 함수
  */
-function initCharts() {
-    const commonSettings = {
+function createWidget(containerId, symbol, interval = "D") {
+    // 기존 차트 내용 삭제 (새로 그리기 위해)
+    document.getElementById(containerId).innerHTML = '';
+    
+    return new TradingView.widget({
         "width": "100%",
         "height": "100%",
-        "interval": "D",
+        "symbol": symbol,
+        "interval": interval,
         "timezone": "Asia/Seoul",
         "theme": "dark",
         "style": "3", // Area Chart
@@ -57,60 +62,57 @@ function initCharts() {
         "hide_top_toolbar": true,
         "hide_legend": true,
         "save_image": false,
-        "container_id": ""
-    };
-
-    // 1. KOSPI (EWY ETF)
-    new TradingView.widget({
-        ...commonSettings,
-        "symbol": "AMEX:EWY",
-        "container_id": "chart_kospi",
-        "lineColor": "#2962FF",
-        "topColor": "rgba(41, 98, 255, 0.3)"
+        "container_id": containerId,
+        "lineColor": getLineColor(containerId),
+        "topColor": getTopColor(containerId)
     });
+}
 
-    // 2. S&P 500 (SPY ETF)
-    new TradingView.widget({
-        ...commonSettings,
-        "symbol": "AMEX:SPY",
-        "container_id": "chart_sp500",
-        "lineColor": "#FF9800",
-        "topColor": "rgba(255, 152, 0, 0.3)"
+function getLineColor(id) {
+    if (id.includes('kospi')) return "#2962FF";
+    if (id.includes('sp500')) return "#FF9800";
+    if (id.includes('nasdaq')) return "#00BCD4";
+    if (id.includes('k200')) return "#9C27B0";
+    if (id.includes('fx')) return "#4CAF50";
+    return "#F44336";
+}
+
+function getTopColor(id) {
+    const hex = getLineColor(id);
+    return hex + "4D"; // 30% alpha
+}
+
+/**
+ * 초기 차트 로드
+ */
+function initCharts() {
+    const cards = document.querySelectorAll('.chart-card');
+    cards.forEach(card => {
+        const containerId = card.querySelector('.chart-container').id;
+        const symbol = card.dataset.symbol;
+        createWidget(containerId, symbol, "D");
     });
+}
 
-    // 3. NASDAQ 100 (QQQ ETF)
-    new TradingView.widget({
-        ...commonSettings,
-        "symbol": "NASDAQ:QQQ",
-        "container_id": "chart_nasdaq",
-        "lineColor": "#00BCD4",
-        "topColor": "rgba(0, 188, 212, 0.3)"
-    });
+/**
+ * 주기 컨트롤 설정
+ */
+function setupIntervalControls() {
+    const buttons = document.querySelectorAll('.int-btn');
+    
+    buttons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const card = e.target.closest('.chart-card');
+            const containerId = card.querySelector('.chart-container').id;
+            const symbol = card.dataset.symbol;
+            const interval = e.target.dataset.int;
 
-    // 4. KOSPI 200
-    new TradingView.widget({
-        ...commonSettings,
-        "symbol": "KRX:KOSPI200",
-        "container_id": "chart_k200",
-        "lineColor": "#9C27B0",
-        "topColor": "rgba(156, 39, 176, 0.3)"
-    });
+            // 버튼 상태 업데이트
+            card.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
 
-    // 5. USD/KRW
-    new TradingView.widget({
-        ...commonSettings,
-        "symbol": "FX_IDC:USDKRW",
-        "container_id": "chart_fx",
-        "lineColor": "#4CAF50",
-        "topColor": "rgba(76, 175, 80, 0.3)"
-    });
-
-    // 6. US 10Y Yield
-    new TradingView.widget({
-        ...commonSettings,
-        "symbol": "TVC:US10Y",
-        "container_id": "chart_yield",
-        "lineColor": "#F44336",
-        "topColor": "rgba(244, 67, 54, 0.3)"
+            // 차트 업데이트
+            createWidget(containerId, symbol, interval);
+        });
     });
 }

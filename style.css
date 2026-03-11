@@ -100,19 +100,51 @@ body {
     transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.chart-card:hover {
-    border-color: var(--accent-color);
-    transform: translateY(-2px);
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
 .chart-title {
     font-size: 0.9rem;
     font-weight: 700;
-    margin-bottom: 1rem;
     color: var(--text-secondary);
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin-bottom: 0;
+}
+
+.interval-selector {
+    display: flex;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px;
+    border-radius: 6px;
+}
+
+.int-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.int-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.int-btn.active {
+    background: var(--accent-color);
+    color: white;
 }
 
 .chart-title::before {
