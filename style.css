@@ -20,6 +20,7 @@ body {
     background-color: var(--bg-color);
     color: var(--text-primary);
     overflow-x: hidden;
+    line-height: 1.6;
 }
 
 /* Header & Nav */
@@ -92,13 +93,37 @@ body.sidebar-closed .sidebar { width: 0; padding: 0; visibility: hidden; opacity
     margin: 0 auto;
 }
 
+.blog-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
 .article-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 20px;
-    padding: 3rem;
-    margin-top: 2rem;
-    line-height: 1.8;
+    padding: 2.5rem;
+    transition: transform 0.3s;
+}
+
+.article-card:hover {
+    transform: translateY(-5px);
+}
+
+.post-date {
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.article-card h2 {
+    margin-bottom: 1.2rem;
+    font-size: 1.6rem;
+    color: var(--text-primary);
 }
 
 .article-card h3 {
@@ -107,12 +132,12 @@ body.sidebar-closed .sidebar { width: 0; padding: 0; visibility: hidden; opacity
 }
 
 .article-card p {
-    margin-bottom: 1.5rem;
-    color: var(--text-primary);
+    color: var(--text-secondary);
     font-size: 1.05rem;
+    line-height: 1.8;
 }
 
-/* Dashboard Elements (Optimized) */
+/* Dashboard Elements */
 .section-label {
     font-size: 0.8rem;
     letter-spacing: 2px;
@@ -136,7 +161,6 @@ body.sidebar-closed .sidebar { width: 0; padding: 0; visibility: hidden; opacity
 }
 
 .chart-container { height: 450px; border-radius: 12px; overflow: hidden; margin-top: 1rem; }
-.chart-container.small { height: 350px; }
 
 /* Footer */
 .footer {
@@ -145,17 +169,9 @@ body.sidebar-closed .sidebar { width: 0; padding: 0; visibility: hidden; opacity
     text-align: center;
     color: var(--text-secondary);
     font-size: 0.85rem;
-    background: var(--bg-color);
 }
-
-.comment-section { margin-top: 4rem; padding: 2rem; }
-
-/* Utils */
-.pulse { animation: pulse-animation 2s infinite; }
-@keyframes pulse-animation { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
 @media (max-width: 1024px) {
     .header-top { flex-direction: column; gap: 1rem; }
-    .main-nav ul { gap: 1rem; }
     .sidebar { display: none; }
 }
