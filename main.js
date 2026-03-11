@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Disqus 댓글 초기화
 function initDisqus() {
     var d = document, s = d.createElement('script');
-    s.src = 'https://market-insight-pro.disqus.com/embed.js'; // 'market-insight-pro'를 실제 단축이름으로 바꾸세요.
+    s.src = 'https://test-vmewaufzig.disqus.com/embed.js'; // 사용자님의 고유 주소로 업데이트 완료
     s.setAttribute('data-timestamp', +new Date());
     (d.head || d.body).appendChild(s);
 }
