@@ -1,6 +1,6 @@
 /**
  * MARKET INSIGHT - Final MZ Pastel Dashboard
- * 확실한 가시성과 파스텔 감성을 보장합니다.
+ * 모든 지표(삼성전자, VIX 등)의 가시성을 100% 보장합니다.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -39,42 +39,50 @@ function checkMarketHours(date) {
 }
 
 /**
- * 미니 위젯 스크립트 주입 방식 (색상과 선 가시성이 가장 확실함)
+ * 모든 심볼을 지원하는 고급 위젯 생성 함수
  */
-function renderChart(containerId, symbol, interval = "D") {
+function createWidget(containerId, symbol, interval = "D") {
     const container = document.getElementById(containerId);
     if (!container) return;
     container.innerHTML = ''; 
 
     const colors = getPastelColors(containerId);
     
-    // 주기에 따른 날짜 범위 설정
-    let dateRange = "1M";
-    if (interval === "5" || interval === "60") dateRange = "1D";
-    if (interval === "W") dateRange = "12M";
-
-    const config = {
-        "symbol": symbol,
+    // TradingView Advanced Widget
+    // 이 방식은 삼성전자, VIX, DXY 등을 가장 안정적으로 지원합니다.
+    new TradingView.widget({
         "width": "100%",
         "height": "100%",
+        "symbol": symbol,
+        "interval": interval,
+        "timezone": "Asia/Seoul",
+        "theme": "dark",
+        "style": "3", // Area Style
         "locale": "ko",
-        "dateRange": dateRange,
-        "colorTheme": "dark",
-        "trendLineColor": colors.line,
-        "underLineColor": colors.top,
-        "underLineBottomColor": "rgba(26, 31, 38, 0)",
-        "isTransparent": true,
-        "autosize": true,
-        "largeChartUrl": ""
-    };
-
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js';
-    script.async = true;
-    script.innerHTML = JSON.stringify(config);
-    
-    container.appendChild(script);
+        "toolbar_bg": "#1a1f26",
+        "enable_publishing": false,
+        "hide_top_toolbar": true,
+        "hide_legend": true,
+        "save_image": false,
+        "container_id": containerId,
+        "backgroundColor": "#1a1f26",
+        "gridColor": "rgba(45, 55, 72, 0.05)",
+        "withdateranges": false,
+        "hide_side_toolbar": true,
+        "details": false,
+        "hotlist": false,
+        "calendar": false,
+        "overrides": {
+            "mainSeriesProperties.areaStyle.linecolor": colors.line,
+            "mainSeriesProperties.areaStyle.color1": colors.top,
+            "mainSeriesProperties.areaStyle.color2": "rgba(26, 31, 38, 0)",
+            "mainSeriesProperties.areaStyle.linewidth": 3,
+            "paneProperties.background": "#1a1f26",
+            "paneProperties.vertGridProperties.color": "rgba(255, 255, 255, 0.03)",
+            "paneProperties.horzGridProperties.color": "rgba(255, 255, 255, 0.03)",
+            "scalesProperties.textColor": "#a0aec0"
+        }
+    });
 }
 
 function getPastelColors(id) {
@@ -99,7 +107,7 @@ function getPastelColors(id) {
 
     return {
         line: line,
-        top: line.replace('1)', '0.2)') // 20% Alpha for area
+        top: line.replace('1)', '0.3)') // 30% Alpha for area
     };
 }
 
@@ -109,7 +117,7 @@ function initCharts() {
         const containerId = card.querySelector('.chart-container').id;
         const symbol = card.dataset.symbol;
         const interval = card.querySelector('.int-btn.active')?.dataset.int || "D";
-        renderChart(containerId, symbol, interval);
+        createWidget(containerId, symbol, interval);
     });
 }
 
@@ -125,7 +133,7 @@ function setupIntervalControls() {
             card.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
 
-            renderChart(containerId, symbol, interval);
+            createWidget(containerId, symbol, interval);
         });
     });
 }
