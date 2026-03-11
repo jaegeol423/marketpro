@@ -124,6 +124,21 @@ body.sidebar-closed .sidebar { width: 0; padding: 0; margin-left: -1px; visibili
 
 .footer { padding: 2rem; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.75rem; color: var(--text-secondary); }
 
+/* Comment Section */
+.comment-section {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+    padding: 2rem;
+    background: var(--card-bg);
+    border-radius: 30px;
+    border: 1px solid var(--border-color);
+}
+
+.comment-section .section-label {
+    margin-bottom: 2rem;
+    display: block;
+}
+
 @media (max-width: 768px) {
     .main-grid, .sub-grid { grid-template-columns: 1fr; }
     .chart-container { height: 350px; }

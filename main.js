@@ -9,12 +9,22 @@ let isSidebarOpen = localStorage.getItem('sidebarOpen') !== 'false'; // 기본�
 document.addEventListener('DOMContentLoaded', () => {
     initClock();
     initTheme();
-    initSidebar(); // 사이드바 토글 로직 추가
+    initSidebar();
     initKoreanNewsWidget();
     initAllCharts();
     setupIntervalControls();
     setupWatchlistControls();
+    initDisqus(); // Disqus 초기화 추가
 });
+
+// Disqus 댓글 초기화
+function initDisqus() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://market-insight-pro.disqus.com/embed.js'; // 'market-insight-pro'를 실제 단축이름으로 바꾸세요.
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+}
+
 
 // 사이드바 토글 및 상태 유지
 function initSidebar() {
