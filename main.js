@@ -1,11 +1,10 @@
 /**
- * MARKET INSIGHT - Logic & Charts (Optimized Range)
+ * MARKET INSIGHT - Final Professional Edition
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     initClock();
-    initCharts();
-    setupIntervalControls();
+    initAllCharts();
 });
 
 function initClock() {
@@ -38,20 +37,22 @@ function checkMarketHours(date) {
 }
 
 /**
- * 차트 렌더링 함수 - 범위(Range) 설정 최적화
+ * 모든 차트 초기화 (수동 재생성 버튼 제거, 위젯 자체 기능 활용)
  */
-function renderChart(containerId, symbol, interval = "D") {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    container.innerHTML = ''; 
+function initAllCharts() {
+    const containers = document.querySelectorAll('.chart-container');
+    containers.forEach(container => {
+        renderWidget(container.id, container.dataset.symbol);
+    });
+}
 
+/**
+ * 가시성과 파스텔 감성을 100% 보장하는 위젯 렌더링
+ */
+function renderWidget(containerId, symbol) {
     const colors = getPastelColors(containerId);
     
-    // 버튼 주기(Interval)에 따른 최적의 표시 범위(Range) 매핑
-    let displayRange = "1M"; // 기본값 (D 선택 시 1개월치 데이터)
-    if (interval === "5" || interval === "60") displayRange = "1D"; // 분봉/시간봉은 당일치
-    if (interval === "M") displayRange = "12M"; // 월간은 1년치
-
+    // 이 위젯 엔진은 자체적으로 '1D, 1M, 1Y' 등 주기 버튼을 포함하고 있어 가장 안정적입니다.
     const config = {
         "symbols": [[symbol, symbol]],
         "chartOnly": false,
@@ -73,17 +74,12 @@ function renderChart(containerId, symbol, interval = "D") {
         "valuesTracking": "1",
         "changeMode": "price-and-percent",
         "chartType": "area",
-        "maLineColor": colors.line,
-        "maLineWidth": 1,
-        "maLength": 9,
-        "headerFontSize": "medium",
         "lineWidth": 2,
         "lineColor": colors.line,
         "topColor": colors.top,
         "bottomColor": "rgba(26, 31, 38, 0)",
         "dateFormat": "yyyy-MM-dd",
-        "timeHoursFormat": "24-point",
-        "range": displayRange // 핵심: 이 속성이 범위를 결정합니다.
+        "timeHoursFormat": "24-point"
     };
 
     const script = document.createElement('script');
@@ -92,7 +88,7 @@ function renderChart(containerId, symbol, interval = "D") {
     script.async = true;
     script.innerHTML = JSON.stringify(config);
     
-    container.appendChild(script);
+    document.getElementById(containerId).appendChild(script);
 }
 
 function getPastelColors(id) {
@@ -111,31 +107,4 @@ function getPastelColors(id) {
     else if (id.includes('eth')) line = "rgba(192, 132, 252, 1)";    
 
     return { line: line, top: line.replace('1)', '0.3)') };
-}
-
-function initCharts() {
-    const cards = document.querySelectorAll('.chart-card');
-    cards.forEach(card => {
-        const containerId = card.querySelector('.chart-container').id;
-        const symbol = card.dataset.symbol;
-        const interval = card.querySelector('.int-btn.active')?.dataset.int || "D";
-        renderChart(containerId, symbol, interval);
-    });
-}
-
-function setupIntervalControls() {
-    const buttons = document.querySelectorAll('.int-btn');
-    buttons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const card = e.target.closest('.chart-card');
-            const containerId = card.querySelector('.chart-container').id;
-            const symbol = card.dataset.symbol;
-            const interval = e.target.dataset.int;
-
-            card.querySelectorAll('.int-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-
-            renderChart(containerId, symbol, interval);
-        });
-    });
 }
