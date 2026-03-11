@@ -1,5 +1,5 @@
 /**
- * MARKET INSIGHT PRO - Final Multi-Page Portfolio Logic
+ * MARKET INSIGHT PRO - Professional Multi-Page Logic
  */
 
 let starredAssets = JSON.parse(localStorage.getItem('starredAssets')) || [];
@@ -12,15 +12,29 @@ document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
     initKoreanNewsWidget();
     
-    // 현재 페이지가 인덱스(대시보드)일 때만 차트 초기화
+    // 대시보드 페이지인 경우 차트 초기화
     if (document.getElementById('dashboard')) {
         initAllCharts();
         setupIntervalControls();
         setupWatchlistControls();
     }
     
+    // 모든 페이지에서 Disqus 실행
     initDisqus();
 });
+
+function initDisqus() {
+    const thread = document.getElementById('disqus_thread');
+    if (!thread) return;
+
+    // 사용자 제공 스크립트 기반 복구
+    (function() {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://test-vmewaufzig.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+}
 
 function initTheme() {
     updateBodyClass();
@@ -80,7 +94,6 @@ function renderAdvancedPro(containerId, symbol, interval = "D") {
         "overrides": {
             "mainSeriesProperties.areaStyle.linecolor": colors.line,
             "mainSeriesProperties.areaStyle.color1": colors.top,
-            "mainSeriesProperties.areaStyle.color2": "rgba(0, 0, 0, 0)",
             "mainSeriesProperties.areaStyle.linewidth": 3,
             "paneProperties.background": themeValue,
             "scalesProperties.textColor": "#a0aec0",
@@ -169,13 +182,4 @@ function setupWatchlistControls() {
         });
     });
     updateUI();
-}
-
-function initDisqus() {
-    const thread = document.getElementById('disqus_thread');
-    if (!thread) return;
-    var d = document, s = d.createElement('script');
-    s.src = 'https://test-vmewaufzig.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
 }
